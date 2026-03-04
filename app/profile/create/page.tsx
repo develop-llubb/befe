@@ -29,11 +29,24 @@ export default async function ProfileCreatePage() {
   return (
     <div className="relative mx-auto flex min-h-dvh max-w-[430px] flex-col bg-background px-6">
       <main className="flex flex-1 flex-col justify-center">
-        <h1 className="font-display text-3xl text-primary">회원가입</h1>
-        <p className="mt-2 text-sm text-muted">
+        <h1
+          className="animate-fade-up font-display text-3xl text-primary"
+          style={{ animationDelay: "0ms" }}
+        >
+          회원가입
+        </h1>
+        <p
+          className="animate-fade-up mt-2 text-sm text-muted"
+          style={{ animationDelay: "80ms" }}
+        >
           아이케미를 시작하기 전에 간단한 정보를 입력해주세요.
         </p>
-        <ProfileCreateForm />
+        <div
+          className="animate-fade-up"
+          style={{ animationDelay: "160ms" }}
+        >
+          <ProfileCreateForm />
+        </div>
       </main>
     </div>
   );

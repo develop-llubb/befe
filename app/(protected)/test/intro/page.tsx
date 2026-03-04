@@ -87,7 +87,7 @@ export default function TestIntroPage() {
       </header>
 
       {/* Scroll content */}
-      <main className="flex-1 overflow-y-auto px-5">
+      <main className="flex-1 overflow-y-auto px-6">
         {/* Hero */}
         <div className="pt-5 text-center" style={ease(0)}>
           <div
@@ -99,10 +99,10 @@ export default function TestIntroPage() {
           >
             📋
           </div>
-          <h1 className="mt-4 text-[22px] font-extrabold tracking-tight text-foreground">
-            검사를 시작하기 전에
+          <h1 className="mt-4 font-display text-3xl text-primary">
+            검사 안내
           </h1>
-          <p className="mt-2 text-[13px] text-muted-light">
+          <p className="mt-2 text-sm text-muted">
             간단한 안내를 읽고 편하게 시작하세요
           </p>
         </div>
@@ -112,10 +112,10 @@ export default function TestIntroPage() {
           {stats.map((s) => (
             <div
               key={s.label}
-              className="flex flex-1 flex-col items-center rounded-2xl border border-border bg-white px-2.5 py-4"
+              className="flex flex-1 flex-col items-center rounded-xl border border-border bg-white px-2.5 py-4"
             >
               <span className="mb-1.5 text-xl">{s.icon}</span>
-              <span className="text-base font-extrabold tracking-tight text-primary">
+              <span className="text-base font-bold text-primary">
                 {s.value}
               </span>
               <span className="mt-0.5 text-[11px] text-muted-light">
@@ -134,7 +134,7 @@ export default function TestIntroPage() {
             {indicators.map((ind) => (
               <div
                 key={ind.code}
-                className="flex items-center gap-3.5 rounded-2xl border border-border bg-white px-4 py-3.5"
+                className="flex items-center gap-3.5 rounded-xl border border-border bg-white px-4 py-3.5"
               >
                 <div
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-black"
@@ -212,7 +212,7 @@ export default function TestIntroPage() {
           <h2 className="mb-3.5 text-base font-bold tracking-tight text-foreground">
             검사 전 참고해주세요
           </h2>
-          <div className="flex flex-col gap-3.5 rounded-[18px] border border-border bg-white px-4 py-5">
+          <div className="flex flex-col gap-3.5 rounded-xl border border-border bg-white px-4 py-5">
             {tips.map((tip, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center text-base">
@@ -230,14 +230,9 @@ export default function TestIntroPage() {
         <div className="mt-4 pb-8" style={ease(0.4)}>
           <button
             onClick={() => router.push("/test")}
-            className="flex h-[54px] w-full items-center justify-center gap-1.5 rounded-2xl text-base font-bold text-white active:scale-[0.97]"
-            style={{
-              background: "linear-gradient(135deg, #D4735C, #C0614A)",
-              boxShadow: "0 6px 20px rgba(212,115,92,0.3)",
-            }}
+            className="h-12 w-full rounded-xl bg-primary text-sm font-semibold text-white transition-transform active:scale-[0.98]"
           >
             검사 시작하기
-            <span className="text-lg">→</span>
           </button>
           <p className="mt-2.5 text-center text-[11px] text-muted-light">
             약 10분 소요 · 55문항 · 정답 없음
