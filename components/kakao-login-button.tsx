@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -20,7 +20,13 @@ declare global {
 }
 
 export function KakaoLoginButton() {
-  const [sdkLoaded, setSdkLoaded] = useState(false);
+  const [sdkLoaded, setSdkLoaded] = useState(
+    typeof window !== "undefined" && !!window.Kakao,
+  );
+
+  useEffect(() => {
+    if (window.Kakao) setSdkLoaded(true);
+  }, []);
 
   const handleLogin = () => {
     if (!window.Kakao?.isInitialized()) {
