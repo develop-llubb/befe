@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { KakaoLoginButton } from "@/components/kakao-login-button";
 
 const pills = [
   {
@@ -165,7 +166,7 @@ export default function LandingPage() {
 
         {/* Hook text */}
         <div
-          className="animate-fade-up mt-11 text-center"
+          className="animate-fade-up mt-8 text-center"
           style={{ animationDelay: "400ms" }}
         >
           <p className="text-[13px] font-normal leading-relaxed tracking-tight text-muted-light">
@@ -199,20 +200,7 @@ export default function LandingPage() {
           className="animate-fade-up w-full pb-7"
           style={{ animationDelay: "500ms" }}
         >
-          <Link
-            href="/login"
-            className="flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[#FEE500] text-[15px] font-semibold text-[#191919] shadow-[0_4px_16px_rgba(254,229,0,0.25)] transition-transform active:scale-[0.98]"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M9 0.6C4.029 0.6 0 3.713 0 7.55C0 9.947 1.558 12.055 3.931 13.335L2.933 16.803C2.845 17.108 3.199 17.35 3.465 17.169L7.565 14.455C8.036 14.49 8.515 14.5 9 14.5C13.971 14.5 18 11.387 18 7.55C18 3.713 13.971 0.6 9 0.6Z"
-                fill="#191919"
-              />
-            </svg>
-            카카오로 시작하기
-          </Link>
+          <KakaoLoginButton />
 
           <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-light">
             시작 시{" "}
