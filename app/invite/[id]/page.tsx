@@ -1,0 +1,96 @@
+import { db } from "@/db";
+import { befeProfiles } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { KakaoLoginButton } from "@/components/kakao-login-button";
+
+export default async function InvitePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  // 초대한 사람 프로필 확인
+  const [inviter] = await db
+    .select({ id: befeProfiles.id, nickname: befeProfiles.nickname })
+    .from(befeProfiles)
+    .where(eq(befeProfiles.id, id))
+    .limit(1);
+
+  if (!inviter) {
+    redirect("/");
+  }
+
+  // 이미 로그인된 사용자 처리
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const [profile] = await db
+      .select({
+        id: befeProfiles.id,
+        test_completed: befeProfiles.test_completed,
+      })
+      .from(befeProfiles)
+      .where(eq(befeProfiles.user_id, user.id))
+      .limit(1);
+
+    if (profile) {
+      // invited_by 업데이트 (아직 설정 안 된 경우)
+      await db
+        .update(befeProfiles)
+        .set({ invited_by: inviter.id })
+        .where(eq(befeProfiles.id, profile.id));
+
+      if (profile.test_completed) {
+        redirect("/home");
+      } else {
+        redirect("/test/intro");
+      }
+    } else {
+      redirect("/profile/create");
+    }
+  }
+
+  return (
+    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-background">
+      <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+        <div
+          className="flex h-20 w-20 items-center justify-center rounded-full text-4xl"
+          style={{
+            background: "linear-gradient(145deg, #FFE8D6, #FFF0E6)",
+            boxShadow: "0 8px 24px rgba(212,115,92,0.1)",
+          }}
+        >
+          💌
+        </div>
+
+        <h1 className="mt-5 font-display text-3xl text-primary">
+          초대장이 도착했어요
+        </h1>
+
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          <span className="font-semibold text-foreground">
+            {inviter.nickname}
+          </span>
+          님이 함께 육아 케어 리포트를
+          <br />
+          확인하자고 초대했어요.
+        </p>
+
+        <p className="mt-6 text-[13px] leading-relaxed text-muted-light">
+          간단한 검사를 완료하면
+          <br />두 분의 육아 케미를 분석해드려요.
+        </p>
+
+        <div className="mt-10 w-full max-w-[320px]">
+          <KakaoLoginButton />
+        </div>
+      </main>
+    </div>
+  );
+}

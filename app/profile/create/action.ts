@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { befeProfiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export type CreateProfileState = {
   error?: string;
@@ -46,12 +47,21 @@ export async function createProfile(
     redirect("/home");
   }
 
+  const cookieStore = await cookies();
+  const invitedBy = cookieStore.get("invited_by")?.value || null;
+
   await db.insert(befeProfiles).values({
     user_id: user.id,
     nickname,
     role,
     third_party_agreed: thirdPartyAgreed,
+    invited_by: invitedBy,
   });
+
+  // 쿠키 제거
+  if (invitedBy) {
+    cookieStore.delete("invited_by");
+  }
 
   redirect("/test/intro");
 }

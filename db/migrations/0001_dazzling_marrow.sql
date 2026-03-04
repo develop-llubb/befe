@@ -1,0 +1,2 @@
+ALTER TABLE "befe_profiles" ADD COLUMN "invited_by" uuid;--> statement-breakpoint
+ALTER TABLE "befe_profiles" ADD CONSTRAINT "befe_profiles_invited_by_befe_profiles_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."befe_profiles"("id") ON DELETE no action ON UPDATE no action;

@@ -44,25 +44,45 @@ export async function proxy(request: NextRequest) {
     PUBLIC_PATHS.includes(pathname) ||
     pathname.startsWith("/invite/");
 
+  // /invite/[id] → invited_by 쿠키 설정
+  if (pathname.startsWith("/invite/")) {
+    const inviterId = pathname.split("/invite/")[1];
+    if (inviterId) {
+      response.cookies.set("invited_by", inviterId, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+        httpOnly: true,
+        sameSite: "lax",
+      });
+    }
+  }
+
   // 미로그인 → 공개 페이지만 허용
   if (!isPublic && !user) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // 로그인 상태에서 보호 페이지 접근 시 프로필/테스트 체크
-  if (user && !isPublic) {
+  // 로그인 상태에서 프로필/테스트 상태 기반 라우팅
+  if (user) {
     const { data: profile } = await supabase
       .from("befe_profiles")
       .select("test_completed")
       .eq("user_id", user.id)
       .single();
 
-    if (!profile) {
-      return NextResponse.redirect(new URL("/profile/create", request.url));
+    // 프로필 있는데 회원가입 페이지 접근 → /home
+    if (profile && pathname === "/profile/create") {
+      return NextResponse.redirect(new URL("/home", request.url));
     }
 
-    if (!profile.test_completed && !pathname.startsWith("/test")) {
-      return NextResponse.redirect(new URL("/test/intro", request.url));
+    if (!isPublic) {
+      if (!profile) {
+        return NextResponse.redirect(new URL("/profile/create", request.url));
+      }
+
+      if (!profile.test_completed && !pathname.startsWith("/test")) {
+        return NextResponse.redirect(new URL("/test/intro", request.url));
+      }
     }
   }
 

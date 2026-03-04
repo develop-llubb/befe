@@ -99,9 +99,7 @@ export default function TestIntroPage() {
           >
             📋
           </div>
-          <h1 className="mt-4 font-display text-3xl text-primary">
-            검사 안내
-          </h1>
+          <h1 className="mt-4 font-display text-3xl text-primary">검사 안내</h1>
           <p className="mt-2 text-sm text-muted">
             간단한 안내를 읽고 편하게 시작하세요
           </p>

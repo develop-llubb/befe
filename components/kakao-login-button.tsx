@@ -14,6 +14,7 @@ declare global {
           scope?: string;
           state?: string;
         }) => void;
+        logout: (callback?: () => void) => void;
       };
     };
   }

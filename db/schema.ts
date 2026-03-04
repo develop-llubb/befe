@@ -83,6 +83,9 @@ export const befeProfiles = pgTable("befe_profiles", {
 
   third_party_agreed: boolean("third_party_agreed").default(false).notNull(),
 
+  // 초대
+  invited_by: uuid("invited_by"),
+
   // 테스트 진행
   test_index: integer("test_index").default(0).notNull(),
   test_completed: boolean("test_completed").default(false).notNull(),
