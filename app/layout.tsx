@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Jua, Mogra } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 const jua = Jua({
   variable: "--font-jua",
@@ -48,6 +49,23 @@ export default function RootLayout({
         style={{ background: "#FEFCF9" }}
       >
         {children}
+        <Toaster
+          position="bottom-center"
+          toastOptions={{
+            style: {
+              background: "linear-gradient(160deg, #FFF6F2, #FFF0EB)",
+              color: "#D4735C",
+              border: "none",
+            },
+            actionButtonStyle: {
+              background: "transparent",
+              color: "#D4735C",
+              border: "none",
+              fontWeight: 700,
+              fontSize: "14px",
+            },
+          }}
+        />
       </body>
     </html>
   );

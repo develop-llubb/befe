@@ -7,7 +7,9 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { populateCoupleScores } from "@/lib/populate-couple-scores";
 
-export async function acceptInvitationFromHome(inviterProfileId: string) {
+export async function acceptInvitationFromHome(
+  inviterProfileId: string,
+): Promise<{ success: boolean }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -77,5 +79,5 @@ export async function acceptInvitationFromHome(inviterProfileId: string) {
       ),
     );
 
-  redirect("/home");
+  return { success: true };
 }

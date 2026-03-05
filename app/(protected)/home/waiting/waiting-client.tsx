@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { JOURNEY_STEPS } from "@/lib/steps";
 
 interface WaitingClientProps {
   nickname: string;
@@ -35,24 +36,11 @@ export function WaitingClient({
       ? Math.round((partnerTestIndex / totalQuestions) * 100)
       : 0;
 
-  const steps = [
-    { num: "1", title: "내 검사 완료", desc: null },
-    {
-      num: "2",
-      title: "배우자 검사",
-      desc: `${partnerNickname}님이 검사를 진행 중이에요. (${partnerTestIndex}/${totalQuestions})`,
-    },
-    {
-      num: "3",
-      title: "리포트 유형 선택 및 결제",
-      desc: "아이 유무에 따라 리포트 유형을 선택하고 결제를 진행해요.",
-    },
-    {
-      num: "4",
-      title: "리포트 확인 & PDF 다운로드",
-      desc: "웹에서 바로 확인하고, PDF로 저장할 수도 있어요.",
-    },
-  ];
+  const steps = JOURNEY_STEPS.map((step, i) =>
+    i === 1
+      ? { ...step, desc: `${partnerNickname}님이 검사를 진행 중이에요. (${partnerTestIndex}/${totalQuestions})` }
+      : step,
+  );
   const activeIdx = 1;
 
   return (

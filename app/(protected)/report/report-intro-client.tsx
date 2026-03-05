@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { saveHasChildren } from "./actions";
+import { JOURNEY_STEPS } from "@/lib/steps";
 
 interface ReportIntroClientProps {
   nickname: string;
@@ -52,25 +53,7 @@ export function ReportIntroClient({
   // 현재 활성 스텝
   const activeIdx = step3Done ? 3 : 2;
 
-  const steps = [
-    { num: "1", title: "내 검사 완료", desc: null },
-    { num: "2", title: "배우자 검사 완료", desc: null },
-    {
-      num: "3",
-      title: "리포트 유형 선택",
-      desc: "자녀 유무에 따라 맞춤형 리포트를 제공해요.",
-    },
-    {
-      num: "4",
-      title: "결제",
-      desc: "결제 후 AI 리포트가 바로 생성돼요.",
-    },
-    {
-      num: "5",
-      title: "리포트 확인 & PDF 다운로드",
-      desc: "웹에서 바로 확인하고, PDF로 저장할 수도 있어요.",
-    },
-  ];
+  const steps = JOURNEY_STEPS;
 
   return (
     <>
@@ -234,7 +217,7 @@ export function ReportIntroClient({
             style={ease(0.3)}
           >
             <div className="mb-4 text-sm font-medium text-foreground">
-              리포트 생성 과정
+              앞으로 이렇게 진행돼요
             </div>
             {steps.map((step, i) => {
               const isDone = i < activeIdx;

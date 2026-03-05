@@ -10,6 +10,8 @@ import {
   DrawerContent,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 // ── Types ──
 
@@ -32,11 +34,18 @@ interface HomeClientProps {
 
 // ── Main ──
 
-export function HomeClient({ nickname, role, status, hasCouple, pendingInvitation }: HomeClientProps) {
+export function HomeClient({
+  nickname,
+  role,
+  status,
+  hasCouple,
+  pendingInvitation,
+}: HomeClientProps) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [acceptPending, startAcceptTransition] = useTransition();
+  const [invitationAccepted, setInvitationAccepted] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 100);
@@ -230,49 +239,68 @@ export function HomeClient({ nickname, role, status, hasCouple, pendingInvitatio
           </p>
 
           {/* Pending invitation banner */}
-          {pendingInvitation && (
+          {pendingInvitation && !invitationAccepted && (
             <div
-              className="mt-6 w-full rounded-[20px] border-2 border-[#FFD4A8] p-5"
+              className="mt-6 w-full rounded-[20px] border-2 border-primary p-5"
               style={{
-                background: "linear-gradient(160deg, #FFF8F0, #FFF3E6)",
-                boxShadow: "0 4px 16px rgba(255,180,100,0.1)",
+                background: "linear-gradient(160deg, #FFF6F2, #FFF0EB)",
+                boxShadow: "0 4px 16px rgba(212,115,92,0.1)",
                 ...ease(0.25),
               }}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl"
+                  className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl text-2xl"
                   style={{
-                    background: "linear-gradient(145deg, #FFE8D6, #FFF0E6)",
+                    background: "linear-gradient(145deg, #D4735C, #C0614A)",
                   }}
                 >
                   💌
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-bold text-foreground">
+                  <div className="mb-1 text-base font-bold text-primary">
                     {pendingInvitation.inviterNickname}님의 초대
                   </div>
-                  <div className="mt-0.5 text-xs text-muted">
-                    함께 육아 케어 리포트를 확인하자고 초대했어요.
+                  <div className="text-xs leading-[1.5] text-muted">
+                    수락하고 육아 케미를 확인해보세요!
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => {
-                  startAcceptTransition(() => {
-                    acceptInvitationFromHome(pendingInvitation.inviterProfileId);
+                  startAcceptTransition(async () => {
+                    const result = await acceptInvitationFromHome(
+                      pendingInvitation.inviterProfileId,
+                    );
+                    if (result.success) {
+                      setInvitationAccepted(true);
+                      toast(
+                        `${pendingInvitation.inviterNickname}님의 초대를 수락했어요!`,
+                        {
+                          action: {
+                            label: "확인",
+                            onClick: () => {},
+                          },
+                        },
+                      );
+                      router.refresh();
+                    }
                   });
                 }}
                 disabled={acceptPending}
-                className="mt-4 h-11 w-full rounded-xl bg-primary text-[14px] font-semibold text-white shadow-[0_4px_16px_rgba(212,115,92,0.25)] transition-transform active:scale-[0.98] disabled:opacity-50"
+                className="mt-4 h-11 w-full flex items-center justify-center rounded-xl bg-primary text-[14px] font-semibold text-white shadow-[0_4px_16px_rgba(212,115,92,0.25)] transition-transform active:scale-[0.98] disabled:opacity-50"
               >
-                {acceptPending ? "수락 중..." : "수락하기"}
+                {acceptPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "수락하기"
+                )}
               </button>
             </div>
           )}
 
           {/* Two CTA cards */}
-          <div className="mt-9 flex w-full flex-col gap-3" style={ease(0.3)}>
+          <div className={`${pendingInvitation && !invitationAccepted ? "mt-4" : "mt-9"} flex w-full flex-col gap-3`} style={ease(0.3)}>
             {/* Card 1: 나의 성향 리포트 */}
             <button
               onClick={() => router.push("/report/me")}
