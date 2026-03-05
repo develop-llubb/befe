@@ -148,9 +148,6 @@ export const befeProfiles = pgTable("befe_profiles", {
 
   third_party_agreed: boolean("third_party_agreed").default(false).notNull(),
 
-  // 초대
-  invited_by: uuid("invited_by"),
-
   // 테스트 진행
   test_index: integer("test_index").default(0).notNull(),
   test_completed: boolean("test_completed").default(false).notNull(),
@@ -257,6 +254,9 @@ export const befeCouples = pgTable(
     e_llubb: real("e_llubb"),
     l_llubb: real("l_llubb"),
     pcq_score: real("pcq_score"),
+
+    // 리포트 옵션
+    has_children: boolean("has_children"),
   },
   (table) => [
     unique("befe_couples_pair_key").on(

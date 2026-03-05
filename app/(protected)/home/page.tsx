@@ -35,7 +35,7 @@ export default async function HomePage() {
 
   // 3. couple
   const [couple] = await db
-    .select({ id: befeCouples.id })
+    .select({ id: befeCouples.id, inviter_profile_id: befeCouples.inviter_profile_id, invitee_profile_id: befeCouples.invitee_profile_id })
     .from(befeCouples)
     .where(
       or(
@@ -45,27 +45,21 @@ export default async function HomePage() {
     )
     .limit(1);
 
-  // 4. partner (couple이 없을 때 invited_by 관계로 탐색)
+  // 4. partner 조회 (couple 테이블로만)
   let partnerNickname: string | null = null;
+  let partnerTestCompleted = false;
 
-  if (!couple) {
-    if (profile.invited_by) {
-      // 나를 초대한 사람
-      const [inviter] = await db
-        .select({ nickname: befeProfiles.nickname })
-        .from(befeProfiles)
-        .where(eq(befeProfiles.id, profile.invited_by))
-        .limit(1);
-      partnerNickname = inviter?.nickname ?? null;
-    } else {
-      // 내가 초대한 사람
-      const [invitee] = await db
-        .select({ nickname: befeProfiles.nickname })
-        .from(befeProfiles)
-        .where(eq(befeProfiles.invited_by, profile.id))
-        .limit(1);
-      partnerNickname = invitee?.nickname ?? null;
-    }
+  if (couple) {
+    const partnerId = couple.inviter_profile_id === profile.id
+      ? couple.invitee_profile_id
+      : couple.inviter_profile_id;
+    const [partner] = await db
+      .select({ nickname: befeProfiles.nickname, test_completed: befeProfiles.test_completed })
+      .from(befeProfiles)
+      .where(eq(befeProfiles.id, partnerId))
+      .limit(1);
+    partnerNickname = partner?.nickname ?? null;
+    partnerTestCompleted = partner?.test_completed ?? false;
   }
 
   // 5. 검사 결과 태그용 report 조회
@@ -125,7 +119,7 @@ export default async function HomePage() {
 
   if (!profile.test_completed) {
     status = "pre_test";
-  } else if (couple) {
+  } else if (couple && partnerTestCompleted) {
     status = "both_complete";
   } else if (partnerNickname) {
     status = "waiting_partner";

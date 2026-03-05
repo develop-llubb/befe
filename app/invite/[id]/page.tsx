@@ -73,7 +73,6 @@ export default async function InvitePage({
         id: befeProfiles.id,
         nickname: befeProfiles.nickname,
         test_completed: befeProfiles.test_completed,
-        invited_by: befeProfiles.invited_by,
       })
       .from(befeProfiles)
       .where(eq(befeProfiles.user_id, user.id))
@@ -88,7 +87,7 @@ export default async function InvitePage({
       redirect("/home");
     }
 
-    // 이미 연결된 상태 (invited_by 설정됨 또는 couple 존재) → 홈으로
+    // 이미 couple이 존재하면 홈으로
     const [existingCouple] = await db
       .select({ id: befeCouples.id })
       .from(befeCouples)

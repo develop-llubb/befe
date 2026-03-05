@@ -24,7 +24,7 @@ interface HomeClientProps {
 
 // ── Main ──
 
-export function HomeClient({ nickname, role, hasCouple }: HomeClientProps) {
+export function HomeClient({ nickname, role, status, hasCouple }: HomeClientProps) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -41,12 +41,14 @@ export function HomeClient({ nickname, role, hasCouple }: HomeClientProps) {
   });
 
   const handleViewCareReport = useCallback(() => {
-    if (hasCouple) {
+    if (hasCouple && status === "both_complete") {
       router.push("/report");
+    } else if (status === "waiting_partner") {
+      router.push("/home/waiting");
     } else {
       router.push("/home/invite");
     }
-  }, [hasCouple, router]);
+  }, [hasCouple, status, router]);
 
   return (
     <>

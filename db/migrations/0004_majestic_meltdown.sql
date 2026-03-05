@@ -1,0 +1,1 @@
+ALTER TABLE "befe_profiles" DROP COLUMN "invited_by";

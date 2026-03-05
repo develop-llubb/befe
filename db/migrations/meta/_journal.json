@@ -22,6 +22,20 @@
       "when": 1772698103089,
       "tag": "0002_round_crystal",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772721436742,
+      "tag": "0003_bitter_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772722466680,
+      "tag": "0004_majestic_meltdown",
+      "breakpoints": true
     }
   ]
 }

@@ -48,13 +48,13 @@ export async function completeTest(
     .set(patch)
     .where(eq(befeProfiles.id, profileId));
 
-  // 양쪽 다 검사 완료 시 couple 자동 생성
-  await tryCreateCouple(profileId);
+  // couple이 있고 양쪽 다 검사 완료 시 점수 populate
+  await tryPopulateCoupleScores(profileId);
 }
 
-async function tryCreateCouple(profileId: string) {
-  // couple이 이미 존재하는지 확인
-  const [existingCouple] = await db
+async function tryPopulateCoupleScores(profileId: string) {
+  // couple 조회
+  const [couple] = await db
     .select({ id: befeCouples.id, pcq_score: befeCouples.pcq_score })
     .from(befeCouples)
     .where(
@@ -65,61 +65,13 @@ async function tryCreateCouple(profileId: string) {
     )
     .limit(1);
 
-  if (existingCouple) {
-    // couple은 있지만 점수 미계산 → populate 시도
-    // (createProfile에서 미리 couple 생성된 케이스)
-    if (existingCouple.pcq_score === null) {
-      await populateCoupleScores(existingCouple.id);
-    }
-    return;
-  }
+  if (!couple) return;
 
-  // 내 프로필 조회
-  const [me] = await db
-    .select()
-    .from(befeProfiles)
-    .where(eq(befeProfiles.id, profileId))
-    .limit(1);
+  // 이미 점수 계산됨
+  if (couple.pcq_score !== null) return;
 
-  if (!me) return;
-
-  // 파트너 찾기: invited_by 관계
-  let partner: { id: string; test_completed: boolean | null } | null = null;
-
-  if (me.invited_by) {
-    const [inviter] = await db
-      .select({ id: befeProfiles.id, test_completed: befeProfiles.test_completed })
-      .from(befeProfiles)
-      .where(eq(befeProfiles.id, me.invited_by))
-      .limit(1);
-    partner = inviter ?? null;
-  } else {
-    const [invitee] = await db
-      .select({ id: befeProfiles.id, test_completed: befeProfiles.test_completed })
-      .from(befeProfiles)
-      .where(eq(befeProfiles.invited_by, profileId))
-      .limit(1);
-    partner = invitee ?? null;
-  }
-
-  if (!partner || !partner.test_completed) return;
-
-  // 초대한 쪽이 inviter
-  const inviterProfileId = me.invited_by ? me.invited_by : profileId;
-  const inviteeProfileId = me.invited_by ? profileId : partner.id;
-
-  const [newCouple] = await db
-    .insert(befeCouples)
-    .values({
-      inviter_profile_id: inviterProfileId,
-      invitee_profile_id: inviteeProfileId,
-    })
-    .onConflictDoNothing()
-    .returning({ id: befeCouples.id });
-
-  if (newCouple) {
-    await populateCoupleScores(newCouple.id);
-  }
+  // populateCoupleScores 내부에서 양쪽 test_completed 확인
+  await populateCoupleScores(couple.id);
 }
 
 export async function logout() {

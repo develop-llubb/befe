@@ -31,44 +31,38 @@ export async function acceptInvite(inviterProfileId: string) {
     redirect("/home");
   }
 
-  // invited_by 설정
-  if (!profile.invited_by) {
-    await db
-      .update(befeProfiles)
-      .set({ invited_by: inviterProfileId })
-      .where(eq(befeProfiles.id, profile.id));
-  }
-
-  // 양쪽 검사 완료 시 couple 생성
-  const [inviter] = await db
-    .select({ test_completed: befeProfiles.test_completed })
-    .from(befeProfiles)
-    .where(eq(befeProfiles.id, inviterProfileId))
+  // 이미 couple이 있으면 스킵
+  const [existingCouple] = await db
+    .select({ id: befeCouples.id })
+    .from(befeCouples)
+    .where(
+      or(
+        eq(befeCouples.inviter_profile_id, profile.id),
+        eq(befeCouples.invitee_profile_id, profile.id),
+      ),
+    )
     .limit(1);
 
-  if (profile.test_completed && inviter?.test_completed) {
-    const [existing] = await db
-      .select({ id: befeCouples.id })
-      .from(befeCouples)
-      .where(
-        or(
-          eq(befeCouples.inviter_profile_id, profile.id),
-          eq(befeCouples.invitee_profile_id, profile.id),
-        ),
-      )
-      .limit(1);
+  if (!existingCouple) {
+    // couple 항상 생성 (테스트 완료 여부 무관)
+    const [newCouple] = await db
+      .insert(befeCouples)
+      .values({
+        inviter_profile_id: inviterProfileId,
+        invitee_profile_id: profile.id,
+      })
+      .onConflictDoNothing()
+      .returning({ id: befeCouples.id });
 
-    if (!existing) {
-      const [newCouple] = await db
-        .insert(befeCouples)
-        .values({
-          inviter_profile_id: inviterProfileId,
-          invitee_profile_id: profile.id,
-        })
-        .onConflictDoNothing()
-        .returning({ id: befeCouples.id });
+    // 양쪽 검사 완료 시 점수 populate
+    if (newCouple) {
+      const [inviter] = await db
+        .select({ test_completed: befeProfiles.test_completed })
+        .from(befeProfiles)
+        .where(eq(befeProfiles.id, inviterProfileId))
+        .limit(1);
 
-      if (newCouple) {
+      if (profile.test_completed && inviter?.test_completed) {
         await populateCoupleScores(newCouple.id);
       }
     }

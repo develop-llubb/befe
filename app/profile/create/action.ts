@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/db";
 import { befeProfiles, befeCouples } from "@/db/schema";
-import { eq, or } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -48,17 +48,17 @@ export async function createProfile(
   }
 
   const cookieStore = await cookies();
-  const invitedByCookie = cookieStore.get("invited_by")?.value || null;
+  const inviterIdCookie = cookieStore.get("invited_by")?.value || null;
 
-  // invited_by 프로필이 실제 존재하는지 확인
-  let invitedBy: string | null = null;
-  if (invitedByCookie) {
+  // 초대자 프로필이 실제 존재하는지 확인
+  let inviterProfileId: string | null = null;
+  if (inviterIdCookie) {
     const [inviter] = await db
       .select({ id: befeProfiles.id })
       .from(befeProfiles)
-      .where(eq(befeProfiles.id, invitedByCookie))
+      .where(eq(befeProfiles.id, inviterIdCookie))
       .limit(1);
-    invitedBy = inviter ? inviter.id : null;
+    inviterProfileId = inviter ? inviter.id : null;
   }
 
   const [newProfile] = await db
@@ -68,23 +68,22 @@ export async function createProfile(
       nickname,
       role,
       third_party_agreed: thirdPartyAgreed,
-      invited_by: invitedBy,
     })
     .returning({ id: befeProfiles.id });
 
-  // couple 생성 (invited_by가 있으면)
-  if (invitedBy && newProfile) {
+  // couple 생성 (초대자가 있으면)
+  if (inviterProfileId && newProfile) {
     await db
       .insert(befeCouples)
       .values({
-        inviter_profile_id: invitedBy,
+        inviter_profile_id: inviterProfileId,
         invitee_profile_id: newProfile.id,
       })
       .onConflictDoNothing();
   }
 
   // 쿠키 제거
-  if (invitedBy) {
+  if (inviterProfileId) {
     cookieStore.delete("invited_by");
   }
 

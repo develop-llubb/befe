@@ -1,0 +1,1 @@
+ALTER TABLE "befe_couples" ADD COLUMN "has_children" boolean;
