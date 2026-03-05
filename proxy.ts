@@ -42,7 +42,8 @@ export async function proxy(request: NextRequest) {
 
   const isPublic =
     PUBLIC_PATHS.includes(pathname) ||
-    pathname.startsWith("/invite/");
+    pathname.startsWith("/invite/") ||
+    pathname.startsWith("/og/");
 
   // /invite/[id] → invited_by 쿠키 설정
   if (pathname.startsWith("/invite/")) {
