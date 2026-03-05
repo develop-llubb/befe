@@ -5,6 +5,7 @@ import { befeProfiles, befeCouples } from "@/db/schema";
 import { eq, or } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { populateCoupleScores } from "@/lib/populate-couple-scores";
 
 export async function acceptInvite(inviterProfileId: string) {
   const supabase = await createClient();
@@ -58,13 +59,18 @@ export async function acceptInvite(inviterProfileId: string) {
       .limit(1);
 
     if (!existing) {
-      await db
+      const [newCouple] = await db
         .insert(befeCouples)
         .values({
           inviter_profile_id: inviterProfileId,
           invitee_profile_id: profile.id,
         })
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning({ id: befeCouples.id });
+
+      if (newCouple) {
+        await populateCoupleScores(newCouple.id);
+      }
     }
   }
 

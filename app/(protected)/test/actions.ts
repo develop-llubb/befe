@@ -6,6 +6,7 @@ import type { BefeProfile } from "@/db/schema";
 import { eq, and, lt, or } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { populateCoupleScores } from "@/lib/populate-couple-scores";
 
 export async function saveAnswer(
   profileId: string,
@@ -52,9 +53,9 @@ export async function completeTest(
 }
 
 async function tryCreateCouple(profileId: string) {
-  // 이미 couple이 있으면 스킵
+  // couple이 이미 존재하는지 확인
   const [existingCouple] = await db
-    .select({ id: befeCouples.id })
+    .select({ id: befeCouples.id, pcq_score: befeCouples.pcq_score })
     .from(befeCouples)
     .where(
       or(
@@ -64,7 +65,14 @@ async function tryCreateCouple(profileId: string) {
     )
     .limit(1);
 
-  if (existingCouple) return;
+  if (existingCouple) {
+    // couple은 있지만 점수 미계산 → populate 시도
+    // (createProfile에서 미리 couple 생성된 케이스)
+    if (existingCouple.pcq_score === null) {
+      await populateCoupleScores(existingCouple.id);
+    }
+    return;
+  }
 
   // 내 프로필 조회
   const [me] = await db
@@ -100,13 +108,18 @@ async function tryCreateCouple(profileId: string) {
   const inviterProfileId = me.invited_by ? me.invited_by : profileId;
   const inviteeProfileId = me.invited_by ? profileId : partner.id;
 
-  await db
+  const [newCouple] = await db
     .insert(befeCouples)
     .values({
       inviter_profile_id: inviterProfileId,
       invitee_profile_id: inviteeProfileId,
     })
-    .onConflictDoNothing();
+    .onConflictDoNothing()
+    .returning({ id: befeCouples.id });
+
+  if (newCouple) {
+    await populateCoupleScores(newCouple.id);
+  }
 }
 
 export async function logout() {
