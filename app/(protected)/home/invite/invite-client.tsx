@@ -48,7 +48,7 @@ export function InviteClient({
       content: {
         title: `${nickname}님이 육아 케미 검사에 초대했어요`,
         description: "우리 부부 육아 점수, 몇 점일까? 3분이면 끝!",
-        imageUrl: `${window.location.origin}/og/invite?name=${encodeURIComponent(nickname)}`,
+        imageUrl: `${window.location.origin}/og/invite?name=${encodeURIComponent(nickname)}&v=${Date.now()}`,
         link: { mobileWebUrl: inviteUrl, webUrl: inviteUrl },
       },
       buttons: [
