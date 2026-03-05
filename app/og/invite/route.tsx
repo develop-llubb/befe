@@ -3,8 +3,13 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
+const fontCache = fetch(
+  "https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-kr@latest/korean-700-normal.woff",
+).then((res) => res.arrayBuffer());
+
 export async function GET(req: NextRequest) {
   const name = req.nextUrl.searchParams.get("name") || "배우자";
+  const fontData = await fontCache;
 
   return new ImageResponse(
     (
@@ -15,7 +20,7 @@ export async function GET(req: NextRequest) {
           display: "flex",
           background: "linear-gradient(145deg, #2C2420, #1A1614)",
           padding: "48px 52px",
-          fontFamily: "sans-serif",
+          fontFamily: '"Noto Sans KR"',
         }}
       >
         {/* Left content */}
@@ -45,7 +50,7 @@ export async function GET(req: NextRequest) {
                 fontWeight: 600,
               }}
             >
-              💌 {name}님이 초대했어요
+              {name}님이 초대했어요
             </div>
           </div>
 
@@ -153,6 +158,17 @@ export async function GET(req: NextRequest) {
         </div>
       </div>
     ),
-    { width: 600, height: 314 },
+    {
+      width: 800,
+      height: 400,
+      fonts: [
+        {
+          name: "Noto Sans KR",
+          data: fontData,
+          weight: 700,
+          style: "normal",
+        },
+      ],
+    },
   );
 }

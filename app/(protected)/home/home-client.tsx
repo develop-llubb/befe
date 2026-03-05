@@ -24,11 +24,7 @@ interface HomeClientProps {
 
 // ── Main ──
 
-export function HomeClient({
-  nickname,
-  role,
-  hasCouple,
-}: HomeClientProps) {
+export function HomeClient({ nickname, role, hasCouple }: HomeClientProps) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -209,10 +205,12 @@ export function HomeClient({
             className="mt-7 text-center text-2xl font-extrabold tracking-[-0.8px] text-foreground"
             style={ease(0.15)}
           >
+            {nickname}님,
+            <br />
             검사가 완료되었어요!
           </h1>
           <p
-            className="mt-2.5 text-center text-sm leading-[1.7] text-muted"
+            className="mt-2.5 text-center text-sm text-muted"
             style={ease(0.2)}
           >
             응답이 저장되었습니다.
