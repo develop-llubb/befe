@@ -47,20 +47,28 @@ function DrawerOverlay({
 function DrawerContent({
   className,
   children,
+  direction,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+}: React.ComponentProps<typeof DrawerPrimitive.Content> & {
+  direction?: "bottom" | "right";
+}) {
+  const isRight = direction === "right";
   return (
     <DrawerPortal>
       <DrawerOverlay />
       <DrawerPrimitive.Content
         data-slot="drawer-content"
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[85dvh] flex-col rounded-t-2xl bg-background",
+          isRight
+            ? "fixed inset-y-0 right-0 z-50 flex w-[280px] flex-col bg-background shadow-xl"
+            : "fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[85dvh] flex-col rounded-t-2xl bg-background",
           className,
         )}
         {...props}
       >
-        <div className="mx-auto mt-4 h-1.5 w-12 shrink-0 rounded-full bg-black/10" />
+        {!isRight && (
+          <div className="mx-auto mt-4 h-1.5 w-12 shrink-0 rounded-full bg-black/10" />
+        )}
         {children}
       </DrawerPrimitive.Content>
     </DrawerPortal>

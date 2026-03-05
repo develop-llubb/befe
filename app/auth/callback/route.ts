@@ -2,11 +2,18 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+function getOrigin(request: NextRequest) {
+  const host = request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto") ?? "http";
+  return host ? `${proto}://${host}` : request.nextUrl.origin;
+}
+
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
+  const origin = getOrigin(request);
 
   if (!code) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(`${origin}/`);
   }
 
   // 1. code → token 교환
@@ -16,7 +23,7 @@ export async function GET(request: NextRequest) {
     body: new URLSearchParams({
       grant_type: "authorization_code",
       client_id: process.env.KAKAO_REST_API_KEY!,
-      redirect_uri: `${request.nextUrl.origin}/auth/callback`,
+      redirect_uri: `${origin}/auth/callback`,
       client_secret: process.env.KAKAO_CLIENT_SECRET!,
       code,
     }),
@@ -26,7 +33,7 @@ export async function GET(request: NextRequest) {
 
   if (!tokenData.id_token) {
     console.error("Kakao token exchange failed:", tokenData);
-    return NextResponse.redirect(new URL("/?error=token_failed", request.url));
+    return NextResponse.redirect(`${origin}/?error=token_failed`);
   }
 
   // 2. signInWithIdToken → 쿠키에 세션 저장
@@ -53,9 +60,8 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error("signInWithIdToken failed:", error);
-    return NextResponse.redirect(new URL("/?error=auth_failed", request.url));
+    return NextResponse.redirect(`${origin}/?error=auth_failed`);
   }
 
-  // proxy middleware가 프로필/테스트 상태에 따라 리다이렉트 처리
-  return NextResponse.redirect(new URL("/home", request.url));
+  return NextResponse.redirect(`${origin}/home`);
 }

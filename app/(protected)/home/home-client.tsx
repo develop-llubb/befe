@@ -3,6 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { logout } from "../test/actions";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 // ── Types ──
 
@@ -14,104 +20,6 @@ interface HomeClientProps {
   profileId: string;
   tags: Array<{ label: string; bg: string; color: string }> | null;
   hasCouple: boolean;
-}
-
-// ── Drawer ──
-
-function Drawer({
-  open,
-  onClose,
-  nickname,
-  role,
-}: {
-  open: boolean;
-  onClose: () => void;
-  nickname: string;
-  role: "mom" | "dad";
-}) {
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
-
-  return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-50 bg-black/30 transition-opacity duration-300"
-        style={{
-          opacity: open ? 1 : 0,
-          pointerEvents: open ? "auto" : "none",
-        }}
-        onClick={onClose}
-      />
-
-      {/* Panel */}
-      <div
-        className="fixed top-0 right-0 z-50 flex h-full w-[280px] flex-col bg-background shadow-xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
-        style={{ transform: open ? "translateX(0)" : "translateX(100%)" }}
-      >
-        {/* Close button */}
-        <div className="flex items-center justify-end px-5 pt-4">
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-none bg-[#F0EDE9] text-base text-foreground"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Profile section */}
-        <div className="border-b border-[#ECE8E3] px-5 pt-4 pb-6">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex h-12 w-12 items-center justify-center rounded-full text-xl"
-              style={{
-                background: "linear-gradient(135deg, #FFE8D6, #FFF0E6)",
-              }}
-            >
-              {role === "mom" ? "👩" : "👨"}
-            </div>
-            <div>
-              <div className="text-base font-bold text-foreground">
-                {nickname}
-              </div>
-              <div className="mt-0.5 text-xs text-[#9A918A]">
-                {role === "mom" ? "엄마" : "아빠"}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Bottom: logout + footer */}
-        <div className="border-t border-[#ECE8E3] px-5 pt-4 pb-6">
-          <button
-            onClick={() => logout()}
-            className="flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border-[1.5px] border-[#ECE8E3] bg-white text-[13px] font-medium text-[#6B6360]"
-          >
-            로그아웃
-          </button>
-          <div className="mt-5 text-center">
-            <div className="text-[11px] text-[#C4BEB8]">
-              아이케미 · 부부 육아 케어 리포트
-            </div>
-            <div className="mt-1 text-[10px] text-[#D4CFC8]">
-              © 2025 아이케미
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
 }
 
 // ── Main ──
@@ -164,10 +72,64 @@ export function HomeClient({
       {/* Drawer */}
       <Drawer
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        nickname={nickname}
-        role={role}
-      />
+        onOpenChange={(open) => {
+          if (!open) setDrawerOpen(false);
+        }}
+        direction="right"
+      >
+        <DrawerContent direction="right">
+          <DrawerTitle className="sr-only">메뉴</DrawerTitle>
+          {/* Close button */}
+          <div className="flex items-center justify-end px-5 pt-4">
+            <DrawerClose className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-none bg-[#F0EDE9] text-base text-foreground">
+              ✕
+            </DrawerClose>
+          </div>
+
+          {/* Profile section */}
+          <div className="border-b border-[#ECE8E3] px-5 pt-4 pb-6">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-full text-xl"
+                style={{
+                  background: "linear-gradient(135deg, #FFE8D6, #FFF0E6)",
+                }}
+              >
+                {role === "mom" ? "👩" : "👨"}
+              </div>
+              <div>
+                <div className="text-base font-bold text-foreground">
+                  {nickname}
+                </div>
+                <div className="mt-0.5 text-xs text-[#9A918A]">
+                  {role === "mom" ? "엄마" : "아빠"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Bottom: logout + footer */}
+          <div className="border-t border-[#ECE8E3] px-5 pt-4 pb-6">
+            <button
+              onClick={() => logout()}
+              className="flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border-[1.5px] border-[#ECE8E3] bg-white text-[13px] font-medium text-[#6B6360]"
+            >
+              로그아웃
+            </button>
+            <div className="mt-5 text-center">
+              <div className="text-[11px] text-[#C4BEB8]">
+                아이케미 · 부부 육아 케어 리포트
+              </div>
+              <div className="mt-1 text-[10px] text-[#D4CFC8]">
+                © 2025 아이케미
+              </div>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-background">
         {/* ── Header (sticky) ── */}

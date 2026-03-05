@@ -18,15 +18,13 @@ export function InviteClient({
     typeof window !== "undefined" && !!window.Kakao,
   );
 
+  const [inviteUrl, setInviteUrl] = useState("");
+
   useEffect(() => {
+    setInviteUrl(`${window.location.origin}/invite/${profileId}`);
     const t = setTimeout(() => setReady(true), 80);
     return () => clearTimeout(t);
-  }, []);
-
-  const inviteUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/invite/${profileId}`
-      : "";
+  }, [profileId]);
 
   const ease = (delay = 0): React.CSSProperties => ({
     opacity: ready ? 1 : 0,
@@ -99,27 +97,28 @@ export function InviteClient({
 
       <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-background">
         {/* ── Header (sticky, chevron back) ── */}
-        <div className="sticky top-0 z-40 flex shrink-0 items-center border-b border-black/[0.03] bg-background/95 px-5 py-3 backdrop-blur-sm">
+        <div className="sticky top-0 z-40 grid shrink-0 grid-cols-[40px_1fr_40px] items-center border-b border-black/[0.03] bg-background/95 px-5 py-3 backdrop-blur-sm">
           <button
             onClick={() => router.back()}
-            className="-ml-1.5 flex h-8 w-8 cursor-pointer items-center justify-start rounded-lg border-none bg-transparent"
+            className="-ml-1.5 flex h-10 w-10 cursor-pointer items-center justify-start rounded-lg border-none bg-transparent"
           >
             <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
               fill="none"
               stroke="#3A3A3A"
-              strokeWidth="2"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <polyline points="13 4 7 10 13 16" />
+              <polyline points="15 5 9 12 15 19" />
             </svg>
           </button>
-          <span className="ml-1 text-[15px] font-semibold text-foreground">
+          <span className="text-center text-[15px] font-semibold text-foreground">
             배우자 초대
           </span>
+          <div />
         </div>
 
         {/* ── Content ── */}
