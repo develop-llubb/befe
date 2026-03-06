@@ -298,28 +298,45 @@ export function ReportResultClient({
       {status === "generating" && (
         <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
           <div
-            className="flex h-[100px] w-[100px] items-center justify-center rounded-full text-4xl"
             style={{
-              background: "linear-gradient(145deg, #FFE8D6, #FFF0E6)",
-              boxShadow: "0 8px 24px rgba(212,115,92,0.08)",
-              animation: "float 3s ease-in-out infinite",
+              opacity: ready ? 1 : 0,
+              transform: ready ? "scale(1)" : "scale(0.8)",
+              transition: "all 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s",
             }}
           >
-            <Loader2
-              size={40}
-              className="animate-spin text-primary"
-              style={{ animationDuration: "2s" }}
-            />
+            <div
+              className="mx-auto flex h-[100px] w-[100px] items-center justify-center rounded-full text-4xl"
+              style={{
+                background: "linear-gradient(145deg, #FFE8D6, #FFF0E6)",
+                boxShadow: "0 8px 24px rgba(212,115,92,0.08)",
+                animation: ready ? "float 3s ease-in-out infinite" : "none",
+              }}
+            >
+              <Loader2
+                size={40}
+                className="animate-spin text-primary"
+                style={{ animationDuration: "2s" }}
+              />
+            </div>
           </div>
-          <h1 className="mt-8 text-[22px] font-extrabold leading-[1.4] tracking-[-0.8px] text-foreground">
+          <h1
+            className="mt-8 text-[22px] font-extrabold leading-[1.4] tracking-[-0.8px] text-foreground"
+            style={ease(0.2)}
+          >
             리포트를 생성하고 있어요
           </h1>
-          <p className="mt-3 text-[13px] leading-[1.7] text-muted">
+          <p
+            className="mt-3 text-[13px] leading-[1.7] text-muted"
+            style={ease(0.3)}
+          >
             AI가 두 분의 검사 결과를 분석 중이에요.
             <br />
-            보통 30초~1분 정도 소요됩니다.
+            보통 1~2분 정도 소요됩니다.
           </p>
-          <div className="mt-8 flex items-center gap-2">
+          <div
+            className="mt-8 flex items-center gap-2"
+            style={ease(0.4)}
+          >
             <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
             <div
               className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary"
@@ -330,7 +347,10 @@ export function ReportResultClient({
               style={{ animationDelay: "0.6s" }}
             />
           </div>
-          <p className="mt-6 text-[11px] text-[#B8A898]">
+          <p
+            className="mt-6 text-[11px] text-[#B8A898]"
+            style={ease(0.5)}
+          >
             페이지를 나가도 리포트는 계속 생성돼요
           </p>
         </main>

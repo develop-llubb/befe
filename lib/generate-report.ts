@@ -26,9 +26,9 @@ export async function generateCareReport(
     ? "자녀 유무: 자녀 있음 (현재 육아 중인 부부에게 맞는 실전적이고 구체적인 조언 중심)"
     : "자녀 유무: 자녀 없음 (예비 부모로서 앞으로의 육아를 준비하는 관점의 조언 중심)";
 
-  const response = await anthropic.messages.create({
+  const stream = anthropic.messages.stream({
     model: "claude-sonnet-4-5-20250929",
-    max_tokens: 16000,
+    max_tokens: 24000,
     system: CARE_REPORT_SYSTEM_PROMPT,
     messages: [
       {
@@ -37,6 +37,8 @@ export async function generateCareReport(
       },
     ],
   });
+
+  const response = await stream.finalMessage();
 
   if (response.stop_reason !== "end_turn") {
     throw new Error(
