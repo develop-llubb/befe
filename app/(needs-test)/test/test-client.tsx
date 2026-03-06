@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import type { BefeProfile, BefeAnswer, Question } from "@/db/schema";
 import { calculateProfileScores } from "@/lib/scorer";
 import { saveAnswer, completeTest } from "./actions";

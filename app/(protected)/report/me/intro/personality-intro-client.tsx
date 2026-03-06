@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { requestPersonalityReport } from "../actions";

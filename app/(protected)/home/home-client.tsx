@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { logout } from "@/lib/auth-actions";
 import { acceptInvitationFromHome } from "./actions";
 import {
