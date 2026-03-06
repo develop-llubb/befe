@@ -33,6 +33,7 @@ export default async function HomePage() {
     .limit(1);
 
   if (!profile) {
+    console.error("[home] profile not found for user:", user.id);
     redirect("/profile/create");
   }
 

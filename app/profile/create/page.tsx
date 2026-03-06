@@ -23,6 +23,7 @@ export default async function ProfileCreatePage() {
     .limit(1);
 
   if (existing) {
+    console.log("[profile/create] profile already exists for user:", user.id, "redirecting to /home");
     redirect("/home");
   }
 
