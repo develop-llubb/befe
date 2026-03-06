@@ -43,6 +43,12 @@ export function KakaoLoginButton() {
 
   useEffect(() => {
     if (window.Kakao) setSdkLoaded(true);
+    // 뒤로가기로 돌아왔을 때 버튼 리셋
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setClicked(false);
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
   }, []);
 
   const handleLogin = () => {
