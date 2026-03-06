@@ -184,7 +184,7 @@ export function ReportIntroClient({
                   cursor: lockedHasChildren !== null ? "default" : "pointer",
                 }}
               >
-                <span className="text-3xl">👨‍👩‍👧</span>
+                <span className="text-3xl">👶</span>
                 <span
                   className="text-sm font-semibold"
                   style={{

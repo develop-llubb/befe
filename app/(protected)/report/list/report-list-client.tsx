@@ -141,7 +141,7 @@ export function ReportListClient({
                       : "linear-gradient(145deg, #E8F0E6, #F0F7EE)",
                   }}
                 >
-                  {report.has_children ? "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67" : "\uD83E\uDD30"}
+                  {report.has_children ? "\uD83D\uDC76" : "\uD83E\uDD30"}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[15px] font-semibold text-foreground">
