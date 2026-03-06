@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CouponClient } from "./coupon-client";
 import { KakaoLoginButton } from "@/components/kakao-login-button";
 import { CollabLogo } from "@/components/collab-logo";
+import { CouponTicket } from "@/components/coupon-ticket";
 
 export default async function CouponPage({
   params,
@@ -74,25 +75,23 @@ export default async function CouponPage({
       <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-background">
         <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
           <CollabLogo />
-          <div
-            className="mt-6 flex h-20 w-20 items-center justify-center rounded-full text-4xl"
-            style={{
-              background: "linear-gradient(145deg, #FFE8D6, #FFF0E6)",
-              boxShadow: "0 8px 24px rgba(212,115,92,0.1)",
-            }}
-          >
-            🎟️
-          </div>
-          <h1 className="mt-5 font-display text-3xl text-primary">무료 쿠폰</h1>
-          <p className="mt-3 text-sm leading-relaxed text-muted">
-            <span className="font-semibold text-foreground">
-              {coupon.event_name}
-            </span>{" "}
-            쿠폰이에요.
-            <br />
-            로그인 후 적용할 수 있어요.
+
+          <span className="mt-2 font-display text-5xl tracking-wider text-primary">
+            아이케미
+          </span>
+
+          <p className="mt-8 text-sm leading-relaxed text-muted">
+            쿠폰을 받고 육아 케어 리포트를 무료로 확인해보세요!
           </p>
-          <div className="mt-10 w-full max-w-[320px]">
+
+          <div className="mt-8 w-full">
+            <CouponTicket
+              title="BeFe 베이비페어 무료 쿠폰"
+              description="육아 케어 리포트 무료 이용권"
+            />
+          </div>
+
+          <div className="mt-8 w-full max-w-[320px]">
             <KakaoLoginButton />
           </div>
         </main>
