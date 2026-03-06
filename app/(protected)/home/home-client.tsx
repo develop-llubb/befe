@@ -10,7 +10,7 @@ import {
   DrawerContent,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Loader2, X, UserPen } from "lucide-react";
+import { Loader2, X, Settings } from "lucide-react";
 import { toast } from "sonner";
 
 // ── Types ──
@@ -141,7 +141,7 @@ export function HomeClient({
               }}
               className="flex h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-[14px] font-medium text-foreground hover:bg-[#F8F6F3] transition-colors"
             >
-              <UserPen size={18} className="text-[#9A918A]" />
+              <Settings size={18} className="text-[#9A918A]" />
               내 정보 수정
             </button>
           </div>
