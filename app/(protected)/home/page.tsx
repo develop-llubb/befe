@@ -34,6 +34,10 @@ export default async function HomePage() {
     redirect("/profile/create");
   }
 
+  if (!profile.test_completed) {
+    redirect("/test/intro");
+  }
+
   // 3. couple
   const [couple] = await db
     .select({ id: befeCouples.id, inviter_profile_id: befeCouples.inviter_profile_id, invitee_profile_id: befeCouples.invitee_profile_id })

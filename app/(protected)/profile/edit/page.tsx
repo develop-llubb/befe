@@ -17,6 +17,7 @@ export default async function ProfileEditPage() {
     .select({
       nickname: befeProfiles.nickname,
       role: befeProfiles.role,
+      test_completed: befeProfiles.test_completed,
     })
     .from(befeProfiles)
     .where(eq(befeProfiles.user_id, user.id))
@@ -24,6 +25,10 @@ export default async function ProfileEditPage() {
 
   if (!profile) {
     redirect("/profile/create");
+  }
+
+  if (!profile.test_completed) {
+    redirect("/test/intro");
   }
 
   return (

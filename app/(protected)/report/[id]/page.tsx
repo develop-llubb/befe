@@ -1,6 +1,8 @@
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { befeReports } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { befeProfiles, befeCouples, befeReports } from "@/db/schema";
+import { eq, or, and } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ReportResultClient } from "./report-result-client";
 
@@ -9,8 +11,46 @@ export default async function ReportResultPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/");
+  }
+
+  const [profile] = await db
+    .select({ id: befeProfiles.id, test_completed: befeProfiles.test_completed })
+    .from(befeProfiles)
+    .where(eq(befeProfiles.user_id, user.id))
+    .limit(1);
+
+  if (!profile) {
+    redirect("/profile/create");
+  }
+
+  if (!profile.test_completed) {
+    redirect("/test/intro");
+  }
+
+  // 내가 속한 couple 확인
+  const [myCouple] = await db
+    .select({ id: befeCouples.id })
+    .from(befeCouples)
+    .where(
+      or(
+        eq(befeCouples.inviter_profile_id, profile.id),
+        eq(befeCouples.invitee_profile_id, profile.id),
+      ),
+    )
+    .limit(1);
+
+  if (!myCouple) {
+    redirect("/home");
+  }
+
   const { id } = await params;
 
+  // report가 내 couple 소속인지 확인
   const [report] = await db
     .select({
       id: befeReports.id,
@@ -19,7 +59,12 @@ export default async function ReportResultPage({
       content: befeReports.content,
     })
     .from(befeReports)
-    .where(eq(befeReports.id, id))
+    .where(
+      and(
+        eq(befeReports.id, id),
+        eq(befeReports.couple_id, myCouple.id),
+      ),
+    )
     .limit(1);
 
   if (!report) {
