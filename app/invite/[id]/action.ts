@@ -31,7 +31,7 @@ export async function acceptInvite(inviterProfileId: string) {
     redirect("/home");
   }
 
-  // 이미 couple이 있으면 스킵
+  // 나 또는 초대자가 이미 couple이면 스킵
   const [existingCouple] = await db
     .select({ id: befeCouples.id })
     .from(befeCouples)
@@ -39,6 +39,8 @@ export async function acceptInvite(inviterProfileId: string) {
       or(
         eq(befeCouples.inviter_profile_id, profile.id),
         eq(befeCouples.invitee_profile_id, profile.id),
+        eq(befeCouples.inviter_profile_id, inviterProfileId),
+        eq(befeCouples.invitee_profile_id, inviterProfileId),
       ),
     )
     .limit(1);

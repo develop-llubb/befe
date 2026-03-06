@@ -87,7 +87,7 @@ export default async function InvitePage({
       redirect("/home");
     }
 
-    // 이미 couple이 존재하면 홈으로
+    // 나 또는 초대자가 이미 couple이면 홈으로
     const [existingCouple] = await db
       .select({ id: befeCouples.id })
       .from(befeCouples)
@@ -95,6 +95,8 @@ export default async function InvitePage({
         or(
           eq(befeCouples.inviter_profile_id, profile.id),
           eq(befeCouples.invitee_profile_id, profile.id),
+          eq(befeCouples.inviter_profile_id, inviter.id),
+          eq(befeCouples.invitee_profile_id, inviter.id),
         ),
       )
       .limit(1);
