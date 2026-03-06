@@ -39,12 +39,16 @@ export function KakaoLoginButton() {
   const [sdkLoaded, setSdkLoaded] = useState(
     typeof window !== "undefined" && !!window.Kakao,
   );
+  const [clicked, setClicked] = useState(false);
 
   useEffect(() => {
     if (window.Kakao) setSdkLoaded(true);
   }, []);
 
   const handleLogin = () => {
+    if (clicked) return;
+    setClicked(true);
+
     if (!window.Kakao?.isInitialized()) {
       window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY!);
     }
@@ -65,7 +69,7 @@ export function KakaoLoginButton() {
       />
       <button
         onClick={handleLogin}
-        disabled={!sdkLoaded}
+        disabled={!sdkLoaded || clicked}
         className="flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[#FEE500] text-[15px] font-semibold text-[#191919] shadow-[0_4px_16px_rgba(254,229,0,0.25)] transition-transform active:scale-[0.98] disabled:opacity-50"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
