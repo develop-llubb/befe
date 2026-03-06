@@ -10,7 +10,8 @@ import {
   DrawerContent,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Loader2, X, Settings } from "lucide-react";
+import { Loader2, X, Settings, PencilIcon } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 // ── Types ──
@@ -133,7 +134,7 @@ export function HomeClient({
           </div>
 
           {/* Menu */}
-          <div className="px-5 pt-2">
+          <div className="px-2 pt-2">
             <button
               onClick={() => {
                 setDrawerOpen(false);
@@ -141,8 +142,7 @@ export function HomeClient({
               }}
               className="flex h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-[14px] font-medium text-foreground hover:bg-[#F8F6F3] transition-colors"
             >
-              <Settings size={18} className="text-[#9A918A]" />
-              내 정보 수정
+              <PencilIcon size={14} className="" />내 정보 수정
             </button>
           </div>
 
@@ -157,7 +157,24 @@ export function HomeClient({
             >
               로그아웃
             </button>
-            <div className="mt-5 text-center">
+            <div className="mt-4 flex items-center justify-center gap-3 text-[11px] text-[#C4BEB8]">
+              <Link
+                href="/terms"
+                onClick={() => setDrawerOpen(false)}
+                className="hover:text-[#8A8078] transition-colors"
+              >
+                이용약관
+              </Link>
+              <span className="text-[#D4CFC8]">·</span>
+              <Link
+                href="/privacy"
+                onClick={() => setDrawerOpen(false)}
+                className="hover:text-[#8A8078] transition-colors"
+              >
+                개인정보 처리방침
+              </Link>
+            </div>
+            <div className="mt-3 text-center">
               <div className="text-[11px] text-[#C4BEB8]">
                 아이케미 · 부부 육아 케어 리포트
               </div>
@@ -330,9 +347,7 @@ export function HomeClient({
             <button
               onClick={() =>
                 router.push(
-                  hasPersonalityReport
-                    ? "/report/me"
-                    : "/report/me/intro",
+                  hasPersonalityReport ? "/report/me" : "/report/me/intro",
                 )
               }
               className="flex w-full items-center gap-4 rounded-[20px] border-[1.5px] border-[#ECE8E3] bg-white p-[22px_20px] text-left transition-all duration-150"
