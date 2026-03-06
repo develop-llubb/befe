@@ -5,6 +5,7 @@ import {
   befeProfiles,
   befeCouples,
   befeInvitations,
+  befeReports,
   reportBig5,
   reportAas,
   reportFlexibility,
@@ -148,7 +149,20 @@ export default async function HomePage() {
     }
   }
 
-  // 7. status 결정
+  // 7. 기존 리포트 조회
+  let reportId: string | null = null;
+  if (couple) {
+    const [report] = await db
+      .select({ id: befeReports.id })
+      .from(befeReports)
+      .where(eq(befeReports.couple_id, couple.id))
+      .limit(1);
+    if (report) {
+      reportId = report.id;
+    }
+  }
+
+  // 8. status 결정
   let status: "pre_test" | "done_no_partner" | "waiting_partner" | "both_complete";
 
   if (!profile.test_completed) {
@@ -171,6 +185,7 @@ export default async function HomePage() {
       tags={tags}
       hasCouple={!!couple}
       pendingInvitation={pendingInvitation}
+      reportId={reportId}
     />
   );
 }

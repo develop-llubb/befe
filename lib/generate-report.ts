@@ -23,7 +23,7 @@ export async function generateCareReport(
 
   const response = await anthropic.messages.create({
     model: "claude-sonnet-4-5-20250929",
-    max_tokens: 8000,
+    max_tokens: 16000,
     system: CARE_REPORT_SYSTEM_PROMPT,
     messages: [
       {
@@ -33,12 +33,30 @@ export async function generateCareReport(
     ],
   });
 
+  if (response.stop_reason !== "end_turn") {
+    throw new Error(
+      `Incomplete response: stop_reason=${response.stop_reason}`,
+    );
+  }
+
   const textBlock = response.content.find((block) => block.type === "text");
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("No text response from Claude");
   }
 
-  const content = JSON.parse(textBlock.text) as CareReport;
+  let raw = textBlock.text.trim();
+  // markdown 코드블록 제거
+  if (raw.startsWith("```")) {
+    raw = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+  }
+
+  let content: CareReport;
+  try {
+    content = JSON.parse(raw) as CareReport;
+  } catch (e) {
+    console.error("Failed to parse report JSON. Raw response:", raw.slice(-200));
+    throw e;
+  }
 
   // meta에 couple_id 주입 (프롬프트에서는 생성하지 않으므로)
   content.meta.couple_id = input.coupleId;

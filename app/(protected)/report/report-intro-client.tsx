@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { saveHasChildren } from "./actions";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { saveHasChildren, requestReport } from "./actions";
 import { JOURNEY_STEPS } from "@/lib/steps";
 import { CouponTicket } from "@/components/coupon-ticket";
 
@@ -30,6 +32,7 @@ export function ReportIntroClient({
     initialHasChildren,
   );
   const [saving, setSaving] = useState(false);
+  const [requesting, startRequesting] = useTransition();
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 80);
@@ -341,9 +344,16 @@ export function ReportIntroClient({
           style={ease(0.4)}
         >
           <button
-            disabled={hasChildren === null}
+            disabled={hasChildren === null || requesting}
             onClick={() => {
-              // TODO: 결제 플로우 연결
+              startRequesting(async () => {
+                const result = await requestReport(coupleId);
+                if ("error" in result) {
+                  toast(result.error);
+                  return;
+                }
+                router.replace(`/report/${result.reportId}`);
+              });
             }}
             className="flex h-[54px] w-full items-center justify-center rounded-2xl border-none text-base font-bold text-white transition-all duration-200"
             style={{
@@ -358,7 +368,13 @@ export function ReportIntroClient({
               cursor: hasChildren !== null ? "pointer" : "not-allowed",
             }}
           >
-            {hasCoupon ? "리포트 받기" : "2,900원 결제하고 리포트 받기"}
+            {requesting ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : hasCoupon ? (
+              "리포트 받기"
+            ) : (
+              "2,900원 결제하고 리포트 받기"
+            )}
           </button>
           <p className="mt-2.5 text-center text-[11px] text-[#B8A898]">
             AI가 두 분의 데이터를 분석하여 맞춤 리포트를 생성합니다

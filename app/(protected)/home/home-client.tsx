@@ -30,6 +30,7 @@ interface HomeClientProps {
   tags: Array<{ label: string; bg: string; color: string }> | null;
   hasCouple: boolean;
   pendingInvitation: PendingInvitation | null;
+  reportId: string | null;
 }
 
 // ── Main ──
@@ -40,6 +41,7 @@ export function HomeClient({
   status,
   hasCouple,
   pendingInvitation,
+  reportId,
 }: HomeClientProps) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
@@ -59,14 +61,16 @@ export function HomeClient({
   });
 
   const handleViewCareReport = useCallback(() => {
-    if (hasCouple && status === "both_complete") {
+    if (reportId) {
+      router.push(`/report/${reportId}`);
+    } else if (hasCouple && status === "both_complete") {
       router.push("/report");
     } else if (status === "waiting_partner") {
       router.push("/home/waiting");
     } else {
       router.push("/home/invite");
     }
-  }, [hasCouple, status, router]);
+  }, [reportId, hasCouple, status, router]);
 
   return (
     <>
@@ -140,7 +144,7 @@ export function HomeClient({
                 아이케미 · 부부 육아 케어 리포트
               </div>
               <div className="mt-1 text-[10px] text-[#D4CFC8]">
-                © 2025 아이케미
+                © 2025 LLUBB
               </div>
             </div>
           </div>
@@ -300,7 +304,10 @@ export function HomeClient({
           )}
 
           {/* Two CTA cards */}
-          <div className={`${pendingInvitation && !invitationAccepted ? "mt-4" : "mt-9"} flex w-full flex-col gap-3`} style={ease(0.3)}>
+          <div
+            className={`${pendingInvitation && !invitationAccepted ? "mt-4" : "mt-9"} flex w-full flex-col gap-3`}
+            style={ease(0.3)}
+          >
             {/* Card 1: 나의 성향 리포트 */}
             <button
               onClick={() => router.push("/report/me")}

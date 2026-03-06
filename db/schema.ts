@@ -40,6 +40,11 @@ export const invitationStatusEnum = pgEnum("befe_invitation_status", [
   "accepted",
   "declined",
 ]);
+export const reportStatusEnum = pgEnum("befe_report_status", [
+  "generating",
+  "completed",
+  "failed",
+]);
 
 // ─── 공유 테이블 (읽기 전용, chemistry-rn과 동일) ───
 
@@ -316,9 +321,10 @@ export const befeReports = pgTable(
     couple_id: uuid("couple_id")
       .notNull()
       .references(() => befeCouples.id, { onDelete: "cascade" }),
-    content: jsonb("content").$type<CareReport>().notNull(),
-    model_version: text("model_version").notNull(),
-    prompt_version: text("prompt_version").notNull(),
+    status: reportStatusEnum("status").default("generating").notNull(),
+    content: jsonb("content").$type<CareReport>(),
+    model_version: text("model_version"),
+    prompt_version: text("prompt_version"),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .defaultNow()
       .notNull(),

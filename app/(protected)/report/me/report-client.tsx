@@ -13,11 +13,36 @@ import type {
 // ── Big5 trait config ──
 
 const BIG5_TRAITS = [
-  { key: "extraversion" as const, label: "외향성", color: "#D4735C", bg: "#FFF0EB" },
-  { key: "agreeableness" as const, label: "우호성", color: "#5B9BD5", bg: "#EEF4FB" },
-  { key: "conscientiousness" as const, label: "성실성", color: "#7BA872", bg: "#F0F7F0" },
-  { key: "neuroticism" as const, label: "신경성", color: "#8B72BE", bg: "#F3EFF9" },
-  { key: "openness" as const, label: "개방성", color: "#C49A30", bg: "#FFF8E8" },
+  {
+    key: "extraversion" as const,
+    label: "외향성",
+    color: "#D4735C",
+    bg: "#FFF0EB",
+  },
+  {
+    key: "agreeableness" as const,
+    label: "우호성",
+    color: "#5B9BD5",
+    bg: "#EEF4FB",
+  },
+  {
+    key: "conscientiousness" as const,
+    label: "성실성",
+    color: "#7BA872",
+    bg: "#F0F7F0",
+  },
+  {
+    key: "neuroticism" as const,
+    label: "신경성",
+    color: "#8B72BE",
+    bg: "#F3EFF9",
+  },
+  {
+    key: "openness" as const,
+    label: "개방성",
+    color: "#C49A30",
+    bg: "#FFF8E8",
+  },
 ] as const;
 
 // ── LevelDots ──
@@ -234,10 +259,7 @@ export function ReportClient({
               if (!trait) return null;
               const level = Math.round(profile[trait.key] ?? 3);
               return (
-                <Expandable
-                  key={i}
-                  title={detail.title}
-                >
+                <Expandable key={i} title={detail.title}>
                   <div className="mb-3 flex items-center gap-2.5">
                     <LevelDots level={level} color={trait.color} />
                     <span
@@ -274,10 +296,7 @@ export function ReportClient({
 
         {/* Divider */}
         {big5Report && aasReport && (
-          <div
-            className="my-7 h-px bg-[#ECE8E3]"
-            style={ease(0.2)}
-          />
+          <div className="my-7 h-px bg-[#ECE8E3]" style={ease(0.2)} />
         )}
 
         {/* ═══ SECTION 2: 애착 성향 ═══ */}
@@ -367,10 +386,7 @@ export function ReportClient({
 
         {/* Divider */}
         {aasReport && flexReport && (
-          <div
-            className="my-7 h-px bg-[#ECE8E3]"
-            style={ease(0.3)}
-          />
+          <div className="my-7 h-px bg-[#ECE8E3]" style={ease(0.3)} />
         )}
 
         {/* ═══ SECTION 3: 정서적 유연성 ═══ */}
@@ -496,7 +512,7 @@ export function ReportClient({
           <p className="text-[10px] leading-[1.7] text-[#B8A898] opacity-60">
             심리학 이론 기반 · 비임상 참고 목적
             <br />
-            아이케미 × 베이비페어 2026
+            BeFe × Chemistry 2026
           </p>
         </div>
       </div>

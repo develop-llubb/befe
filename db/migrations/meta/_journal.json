@@ -57,6 +57,13 @@
       "when": 1772726198965,
       "tag": "0007_slippery_maximus",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1772776821932,
+      "tag": "0008_milky_tigra",
+      "breakpoints": true
     }
   ]
 }
