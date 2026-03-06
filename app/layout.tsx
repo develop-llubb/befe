@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   title: "아이케미 - 부부 육아 케어 리포트",
   description:
     "부부 심리 성향 분석으로 알아보는 우리만의 육아 케어 리포트",
+  openGraph: {
+    title: "아이케미 - 부부 육아 케어 리포트",
+    description: "심리학 기반 3분 검사로 부부의 육아 강점과 위험 신호를 한눈에",
+    images: [{ url: "/og/default", width: 800, height: 400 }],
+  },
 };
 
 export const viewport: Viewport = {
