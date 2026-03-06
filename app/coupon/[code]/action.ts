@@ -52,7 +52,7 @@ export async function redeemCoupon(
   }
 
   if (coupon.used_by.includes(user.id)) {
-    return { error: "이미 사용한 쿠폰이에요." };
+    return { error: "이미 쿠폰을 받았어요." };
   }
 
   // 쿠폰 사용 처리
