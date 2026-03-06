@@ -3,9 +3,12 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { befeProfiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { TestIntroClient } from "./intro-client";
 
-export default async function TestIntroPage() {
+export default async function NeedsTestLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -23,10 +26,9 @@ export default async function TestIntroPage() {
     redirect("/profile/create");
   }
 
-  // 이미 테스트 완료면 홈으로
   if (profile.test_completed) {
     redirect("/home");
   }
 
-  return <TestIntroClient />;
+  return <>{children}</>;
 }

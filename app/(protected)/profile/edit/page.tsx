@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { befeProfiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -7,29 +6,16 @@ import { EditProfileForm } from "./form";
 
 export default async function ProfileEditPage() {
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/");
-  }
+  const { data: { user } } = await supabase.auth.getUser();
 
   const [profile] = await db
     .select({
       nickname: befeProfiles.nickname,
       role: befeProfiles.role,
-      test_completed: befeProfiles.test_completed,
     })
     .from(befeProfiles)
-    .where(eq(befeProfiles.user_id, user.id))
+    .where(eq(befeProfiles.user_id, user!.id))
     .limit(1);
-
-  if (!profile) {
-    redirect("/profile/create");
-  }
-
-  if (!profile.test_completed) {
-    redirect("/test/intro");
-  }
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-background">

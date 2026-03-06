@@ -11,26 +11,16 @@ export default async function ReportPage({
   searchParams: Promise<{ type?: string }>;
 }) {
   const { type } = await searchParams;
-  // 1. auth
+
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (authError || !user) {
-    redirect("/");
-  }
-
-  // 2. profile
   const [profile] = await db
     .select()
     .from(befeProfiles)
-    .where(eq(befeProfiles.user_id, user.id))
+    .where(eq(befeProfiles.user_id, user!.id))
     .limit(1);
 
-  if (!profile || !profile.test_completed) {
-    redirect("/home");
-  }
-
-  // 3. couple (점수 계산 완료된 것만)
   const [couple] = await db
     .select({
       id: befeCouples.id,
@@ -56,7 +46,6 @@ export default async function ReportPage({
     redirect("/home");
   }
 
-  // 4. partner 닉네임
   const partnerId =
     couple.inviter_profile_id === profile.id
       ? couple.invitee_profile_id
@@ -70,7 +59,6 @@ export default async function ReportPage({
 
   const hasCoupon = !!(profile.coupon_id || partner?.coupon_id);
 
-  // 이미 존재하는 리포트 타입 조회
   const existingReports = await db
     .select({ has_children: befeReports.has_children })
     .from(befeReports)
@@ -78,7 +66,6 @@ export default async function ReportPage({
 
   const existingTypes = existingReports.map((r) => r.has_children);
 
-  // type 쿼리 파라미터로 들어온 경우: 해당 타입으로 고정
   let lockedHasChildren: boolean | null = null;
   if (type === "with" && !existingTypes.includes(true)) {
     lockedHasChildren = true;

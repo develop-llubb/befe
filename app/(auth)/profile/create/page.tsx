@@ -7,17 +7,13 @@ import { ProfileCreateForm } from "./form";
 
 export default async function ProfileCreatePage() {
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/");
-  }
+  const { data: { user } } = await supabase.auth.getUser();
 
   // 이미 프로필이 있으면 홈으로
   const [existing] = await db
     .select({ id: befeProfiles.id })
     .from(befeProfiles)
-    .where(eq(befeProfiles.user_id, user.id))
+    .where(eq(befeProfiles.user_id, user!.id))
     .limit(1);
 
   if (existing) {

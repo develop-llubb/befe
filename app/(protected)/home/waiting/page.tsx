@@ -6,26 +6,15 @@ import { eq, or, count } from "drizzle-orm";
 import { WaitingClient } from "./waiting-client";
 
 export default async function WaitingPage() {
-  // 1. auth check
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (authError || !user) {
-    redirect("/");
-  }
-
-  // 2. profile
   const [profile] = await db
     .select()
     .from(befeProfiles)
-    .where(eq(befeProfiles.user_id, user.id))
+    .where(eq(befeProfiles.user_id, user!.id))
     .limit(1);
 
-  if (!profile || !profile.test_completed) {
-    redirect("/home");
-  }
-
-  // 3. couple에서 partner 조회
   const [couple] = await db
     .select({
       inviter_profile_id: befeCouples.inviter_profile_id,
@@ -67,7 +56,6 @@ export default async function WaitingPage() {
     redirect("/home");
   }
 
-  // 4. 총 문항 수
   const [{ total }] = await db
     .select({ total: count() })
     .from(questions);

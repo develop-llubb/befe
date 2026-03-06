@@ -4,8 +4,6 @@ import { db } from "@/db";
 import { befeAnswers, befeProfiles, befeCouples } from "@/db/schema";
 import type { BefeProfile } from "@/db/schema";
 import { eq, and, lt, or } from "drizzle-orm";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { populateCoupleScores } from "@/lib/populate-couple-scores";
 
 export async function saveAnswer(
@@ -74,8 +72,3 @@ async function tryPopulateCoupleScores(profileId: string) {
   await populateCoupleScores(couple.id);
 }
 
-export async function logout() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/");
-}

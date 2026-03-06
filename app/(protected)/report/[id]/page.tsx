@@ -12,25 +12,13 @@ export default async function ReportResultPage({
   params: Promise<{ id: string }>;
 }) {
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/");
-  }
+  const { data: { user } } = await supabase.auth.getUser();
 
   const [profile] = await db
-    .select({ id: befeProfiles.id, test_completed: befeProfiles.test_completed })
+    .select({ id: befeProfiles.id })
     .from(befeProfiles)
-    .where(eq(befeProfiles.user_id, user.id))
+    .where(eq(befeProfiles.user_id, user!.id))
     .limit(1);
-
-  if (!profile) {
-    redirect("/profile/create");
-  }
-
-  if (!profile.test_completed) {
-    redirect("/test/intro");
-  }
 
   // 내가 속한 couple 확인
   const [myCouple] = await db

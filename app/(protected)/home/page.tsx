@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
   befeProfiles,
@@ -15,30 +14,17 @@ import { eq, or, and } from "drizzle-orm";
 import { HomeClient } from "./home-client";
 
 export default async function HomePage() {
-  // 1. auth check
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (authError || !user) {
-    redirect("/");
-  }
-
-  // 2. profile
+  // layout에서 auth + profile + test_completed 체크 완료
   const [profile] = await db
     .select()
     .from(befeProfiles)
-    .where(eq(befeProfiles.user_id, user.id))
+    .where(eq(befeProfiles.user_id, user!.id))
     .limit(1);
 
-  if (!profile) {
-    redirect("/profile/create");
-  }
-
-  if (!profile.test_completed) {
-    redirect("/test/intro");
-  }
-
-  // 3. couple
+  // couple
   const [couple] = await db
     .select({ id: befeCouples.id, inviter_profile_id: befeCouples.inviter_profile_id, invitee_profile_id: befeCouples.invitee_profile_id })
     .from(befeCouples)
@@ -68,56 +54,47 @@ export default async function HomePage() {
   }
 
   // 5. 검사 결과 태그용 report 조회
-  let tags: Array<{ label: string; bg: string; color: string }> | null = null;
+  const tagList: Array<{ label: string; bg: string; color: string }> = [];
 
-  if (profile.test_completed) {
-    const tagList: Array<{ label: string; bg: string; color: string }> = [];
-
-    // Big5 nickname
-    if (profile.big_5_type != null) {
-      const [big5] = await db
-        .select({ nickname: reportBig5.nickname })
-        .from(reportBig5)
-        .where(eq(reportBig5.big_5_type, profile.big_5_type))
-        .limit(1);
-      if (big5) {
-        tagList.push({ label: big5.nickname, bg: "#FFF0EB", color: "#D4735C" });
-      }
-    }
-
-    // Attachment type_text
-    if (profile.attachment_type && profile.aas_intensity != null) {
-      const [aas] = await db
-        .select({ type_text: reportAas.type_text })
-        .from(reportAas)
-        .where(
-          and(
-            eq(reportAas.type, profile.attachment_type),
-            eq(reportAas.aas_intensity, profile.aas_intensity),
-          ),
-        )
-        .limit(1);
-      if (aas) {
-        tagList.push({ label: aas.type_text, bg: "#F3EFF9", color: "#8B72BE" });
-      }
-    }
-
-    // Flexibility title
-    if (profile.flexibility_level != null) {
-      const [flex] = await db
-        .select({ title: reportFlexibility.title })
-        .from(reportFlexibility)
-        .where(eq(reportFlexibility.flexibility_level, profile.flexibility_level))
-        .limit(1);
-      if (flex) {
-        tagList.push({ label: flex.title, bg: "#F0F7F0", color: "#7BA872" });
-      }
-    }
-
-    if (tagList.length > 0) {
-      tags = tagList;
+  if (profile.big_5_type != null) {
+    const [big5] = await db
+      .select({ nickname: reportBig5.nickname })
+      .from(reportBig5)
+      .where(eq(reportBig5.big_5_type, profile.big_5_type))
+      .limit(1);
+    if (big5) {
+      tagList.push({ label: big5.nickname, bg: "#FFF0EB", color: "#D4735C" });
     }
   }
+
+  if (profile.attachment_type && profile.aas_intensity != null) {
+    const [aas] = await db
+      .select({ type_text: reportAas.type_text })
+      .from(reportAas)
+      .where(
+        and(
+          eq(reportAas.type, profile.attachment_type),
+          eq(reportAas.aas_intensity, profile.aas_intensity),
+        ),
+      )
+      .limit(1);
+    if (aas) {
+      tagList.push({ label: aas.type_text, bg: "#F3EFF9", color: "#8B72BE" });
+    }
+  }
+
+  if (profile.flexibility_level != null) {
+    const [flex] = await db
+      .select({ title: reportFlexibility.title })
+      .from(reportFlexibility)
+      .where(eq(reportFlexibility.flexibility_level, profile.flexibility_level))
+      .limit(1);
+    if (flex) {
+      tagList.push({ label: flex.title, bg: "#F0F7F0", color: "#7BA872" });
+    }
+  }
+
+  const tags = tagList.length > 0 ? tagList : null;
 
   // 6. 대기 중인 초대 조회 (couple이 없을 때만)
   let pendingInvitation: { id: string; inviterProfileId: string; inviterNickname: string } | null = null;
@@ -171,11 +148,9 @@ export default async function HomePage() {
   const hasPersonalityReport = !!personalityReport;
 
   // 9. status 결정
-  let status: "pre_test" | "done_no_partner" | "waiting_partner" | "both_complete";
+  let status: "done_no_partner" | "waiting_partner" | "both_complete";
 
-  if (!profile.test_completed) {
-    status = "pre_test";
-  } else if (couple && partnerTestCompleted) {
+  if (couple && partnerTestCompleted) {
     status = "both_complete";
   } else if (partnerNickname) {
     status = "waiting_partner";

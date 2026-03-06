@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import { logout } from "../actions";
+import { logout } from "@/lib/auth-actions";
 
 const stats = [
   { value: "약 3분", label: "소요 시간", icon: "⏱" },

@@ -7,21 +7,13 @@ import { ReportListClient } from "./report-list-client";
 
 export default async function ReportListPage() {
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/");
-  }
+  const { data: { user } } = await supabase.auth.getUser();
 
   const [profile] = await db
     .select()
     .from(befeProfiles)
-    .where(eq(befeProfiles.user_id, user.id))
+    .where(eq(befeProfiles.user_id, user!.id))
     .limit(1);
-
-  if (!profile || !profile.test_completed) {
-    redirect("/home");
-  }
 
   const [couple] = await db
     .select({
@@ -43,7 +35,6 @@ export default async function ReportListPage() {
     redirect("/home");
   }
 
-  // partner nickname
   const partnerId =
     couple.inviter_profile_id === profile.id
       ? couple.invitee_profile_id
@@ -55,7 +46,6 @@ export default async function ReportListPage() {
     .where(eq(befeProfiles.id, partnerId))
     .limit(1);
 
-  // all reports for this couple
   const reports = await db
     .select({
       id: befeReports.id,

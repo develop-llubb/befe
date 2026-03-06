@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { logout } from "../test/actions";
+import { logout } from "@/lib/auth-actions";
 import { acceptInvitationFromHome } from "./actions";
 import {
   Drawer,
@@ -25,7 +25,7 @@ interface HomeClientProps {
   nickname: string;
   role: "mom" | "dad";
   partnerNickname: string | null;
-  status: "pre_test" | "done_no_partner" | "waiting_partner" | "both_complete";
+  status: "done_no_partner" | "waiting_partner" | "both_complete";
   profileId: string;
   tags: Array<{ label: string; bg: string; color: string }> | null;
   hasCouple: boolean;
