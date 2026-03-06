@@ -5,6 +5,7 @@ import { befeProfiles, befeCouples, befeInvitations } from "@/db/schema";
 import { eq, or, and } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { populateCoupleScores } from "@/lib/populate-couple-scores";
 
 export async function acceptInvite(inviterProfileId: string) {
@@ -78,6 +79,10 @@ export async function acceptInvite(inviterProfileId: string) {
         eq(befeInvitations.invitee_profile_id, profile.id),
       ),
     );
+
+  // invited_by 쿠키 제거
+  const cookieStore = await cookies();
+  cookieStore.delete("invited_by");
 
   // 검사 미완료면 테스트로, 완료면 홈으로
   if (!profile.test_completed) {

@@ -4,6 +4,7 @@ import { befeProfiles, befeCouples, befeInvitations } from "@/db/schema";
 import { eq, or, and } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { KakaoLoginButton } from "@/components/kakao-login-button";
 import { InviteLoggedIn } from "./invite-logged-in";
 
@@ -58,6 +59,8 @@ export default async function InvitePage({
     .limit(1);
 
   if (!inviter) {
+    const cookieStore = await cookies();
+    cookieStore.delete("invited_by");
     redirect("/");
   }
 
@@ -82,6 +85,8 @@ export default async function InvitePage({
 
     // 자기 자신 초대 방지
     if (profile.id === inviter.id) {
+      const cookieStore = await cookies();
+      cookieStore.delete("invited_by");
       redirect("/home");
     }
 
@@ -100,6 +105,8 @@ export default async function InvitePage({
       .limit(1);
 
     if (existingCouple) {
+      const cookieStore = await cookies();
+      cookieStore.delete("invited_by");
       redirect("/home");
     }
 

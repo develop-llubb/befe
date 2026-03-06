@@ -108,9 +108,9 @@ export default async function CouponPage({
     redirect("/profile/create");
   }
 
-  // if (profile.coupon_id) {
-  //   redirect("/home");
-  // }
+  if (profile.coupon_id) {
+    redirect("/home");
+  }
 
   return <CouponClient couponCode={code} eventName={coupon.event_name} />;
 }

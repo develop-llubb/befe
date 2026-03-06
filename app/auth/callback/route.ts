@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { befeProfiles, befeCouples } from "@/db/schema";
+import { befeProfiles, befeCouples, befeCoupons } from "@/db/schema";
 import { eq, or } from "drizzle-orm";
 
 function getOrigin(request: NextRequest) {
@@ -96,10 +96,48 @@ export async function GET(request: NextRequest) {
     cookieStore.delete("invited_by");
   }
 
-  // coupon_code 쿠키가 있으면 쿠폰 페이지로
+  // coupon_code 쿠키가 있으면 쿠폰 페이지로 (유효한 쿠폰 + 미보유 유저만)
   const couponCode = cookieStore.get("coupon_code")?.value;
   if (couponCode) {
-    return NextResponse.redirect(`${origin}/coupon/${couponCode}`);
+    const { data: { user: authedUser } } = await supabase.auth.getUser();
+    let alreadyHasCoupon = false;
+
+    if (authedUser) {
+      const [profile] = await db
+        .select({ coupon_id: befeProfiles.coupon_id })
+        .from(befeProfiles)
+        .where(eq(befeProfiles.user_id, authedUser.id))
+        .limit(1);
+      alreadyHasCoupon = !!profile?.coupon_id;
+    }
+
+    if (!alreadyHasCoupon) {
+      const [coupon] = await db
+        .select({
+          id: befeCoupons.id,
+          expires_at: befeCoupons.expires_at,
+          max_uses: befeCoupons.max_uses,
+          current_uses: befeCoupons.current_uses,
+        })
+        .from(befeCoupons)
+        .where(eq(befeCoupons.code, couponCode))
+        .limit(1);
+
+      const expired = coupon?.expires_at
+        ? new Date(coupon.expires_at) < new Date()
+        : false;
+      const exhausted =
+        coupon?.max_uses !== null && coupon?.max_uses !== undefined
+          ? coupon.current_uses >= coupon.max_uses
+          : false;
+
+      if (coupon && !expired && !exhausted) {
+        return NextResponse.redirect(`${origin}/coupon/${couponCode}`);
+      }
+    }
+
+    // 쿠폰 무효 또는 이미 보유 → 쿠키 삭제하고 fall through
+    cookieStore.delete("coupon_code");
   }
 
   return NextResponse.redirect(`${origin}/home`);
