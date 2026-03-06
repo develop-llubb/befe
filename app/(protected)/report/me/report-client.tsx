@@ -465,8 +465,8 @@ export function ReportClient({
               onClick={() => router.push("/home")}
               className="h-12 w-full cursor-pointer rounded-[14px] border-none text-sm font-bold text-white"
               style={{
-                background: "linear-gradient(135deg, #8B72BE, #7462A8)",
-                boxShadow: "0 4px 14px rgba(139,114,190,0.25)",
+                background: "linear-gradient(135deg, #D4735C, #C0614A)",
+                boxShadow: "0 4px 14px rgba(212,115,92,0.25)",
               }}
             >
               홈으로 돌아가기
