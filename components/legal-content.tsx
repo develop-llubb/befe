@@ -250,6 +250,7 @@ export function PrivacyContent() {
         위탁 계약에서 개인정보 보호를 보장합니다.
       </p>
       <ul>
+        <li>토스페이먼츠: 결제 처리 (계정 삭제 또는 계약 종료 시까지 보유)</li>
         <li>Google, Apple: 결제 처리 (계정 삭제 또는 계약 종료 시까지 보유)</li>
         <li>
           Amazon Web Services (AWS), Google: 데이터 저장 및 클라우드
@@ -267,7 +268,7 @@ export function PrivacyContent() {
       <ul>
         <li>성명: 김유승</li>
         <li>직책: 대표이사</li>
-        <li>이메일: kwilliam2006@gmail.com</li>
+        <li>이메일: yskim@llubb.com</li>
         <li>전화: 010-3089-3241</li>
       </ul>
 

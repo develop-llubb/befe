@@ -3,6 +3,7 @@ import { Jua, Mogra } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import NextTopLoader from "nextjs-toploader";
+import { BusinessFooter } from "@/components/business-footer";
 
 const jua = Jua({
   variable: "--font-jua",
@@ -56,6 +57,7 @@ export default function RootLayout({
       >
         <NextTopLoader color="#D4735C" showSpinner={false} />
         {children}
+        <BusinessFooter />
         <Toaster
           position="bottom-center"
           toastOptions={{
