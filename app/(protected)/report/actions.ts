@@ -1,11 +1,12 @@
 "use server";
 
 import { db } from "@/db";
-import { befeCouples, befeReports } from "@/db/schema";
+import { befeCouples, befeReports, befeReportTemplates } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { after } from "next/server";
 import { generateCareReport } from "@/lib/generate-report";
 import { PROMPT_VERSION } from "@/lib/report-prompt";
+import type { CareReport, Grade } from "@/lib/care-report";
 
 export async function saveHasChildren(coupleId: string, hasChildren: boolean) {
   await db
@@ -15,6 +16,44 @@ export async function saveHasChildren(coupleId: string, hasChildren: boolean) {
       updated_at: new Date().toISOString(),
     })
     .where(eq(befeCouples.id, coupleId));
+}
+
+async function findTemplate(grades: { esb: Grade; csp: Grade; pci: Grade; stb: Grade }, hasChildren: boolean) {
+  const [template] = await db
+    .select()
+    .from(befeReportTemplates)
+    .where(
+      and(
+        eq(befeReportTemplates.esb_grade, grades.esb),
+        eq(befeReportTemplates.csp_grade, grades.csp),
+        eq(befeReportTemplates.pci_grade, grades.pci),
+        eq(befeReportTemplates.stb_grade, grades.stb),
+        eq(befeReportTemplates.has_children, hasChildren),
+      ),
+    )
+    .limit(1);
+  return template ?? null;
+}
+
+async function saveTemplate(
+  grades: { esb: Grade; csp: Grade; pci: Grade; stb: Grade },
+  hasChildren: boolean,
+  content: CareReport,
+  modelVersion: string,
+) {
+  await db
+    .insert(befeReportTemplates)
+    .values({
+      esb_grade: grades.esb,
+      csp_grade: grades.csp,
+      pci_grade: grades.pci,
+      stb_grade: grades.stb,
+      has_children: hasChildren,
+      content,
+      model_version: modelVersion,
+      prompt_version: PROMPT_VERSION,
+    })
+    .onConflictDoNothing();
 }
 
 export async function requestReport(
@@ -59,7 +98,34 @@ export async function requestReport(
     return { error: "점수 데이터가 없어요." };
   }
 
-  // generating 상태로 리포트 레코드 생성
+  const grades = {
+    esb: couple.esb_grade,
+    csp: couple.csp_grade,
+    pci: couple.pci_grade,
+    stb: couple.stb_grade,
+  };
+
+  // 템플릿 캐시 확인
+  const template = await findTemplate(grades, hasChildren);
+
+  if (template) {
+    // 템플릿이 있으면 즉시 completed 리포트 생성
+    const [report] = await db
+      .insert(befeReports)
+      .values({
+        couple_id: coupleId,
+        has_children: hasChildren,
+        status: "completed",
+        content: template.content,
+        model_version: template.model_version,
+        prompt_version: template.prompt_version,
+      })
+      .returning({ id: befeReports.id });
+
+    return { reportId: report.id };
+  }
+
+  // 템플릿이 없으면 generating 상태로 리포트 생성
   const [report] = await db
     .insert(befeReports)
     .values({
@@ -69,19 +135,14 @@ export async function requestReport(
     })
     .returning({ id: befeReports.id });
 
-  // 백그라운드에서 리포트 생성
+  // 백그라운드에서 리포트 생성 + 템플릿 저장
   after(async () => {
     try {
       const { content, modelVersion } = await generateCareReport({
         sequence: 1,
         coupleId,
         hasChildren,
-        grades: {
-          esb: couple.esb_grade!,
-          csp: couple.csp_grade!,
-          pci: couple.pci_grade!,
-          stb: couple.stb_grade!,
-        },
+        grades,
       });
 
       await db
@@ -93,6 +154,9 @@ export async function requestReport(
           prompt_version: PROMPT_VERSION,
         })
         .where(eq(befeReports.id, report.id));
+
+      // 템플릿에도 저장
+      await saveTemplate(grades, hasChildren, content, modelVersion);
     } catch (e) {
       console.error("Report generation failed:", e);
       await db
@@ -144,25 +208,44 @@ export async function retryReport(reportId: string): Promise<{ error?: string }>
     return { error: "점수 데이터가 없어요." };
   }
 
+  const grades = {
+    esb: couple.esb_grade,
+    csp: couple.csp_grade,
+    pci: couple.pci_grade,
+    stb: couple.stb_grade,
+  };
+
+  // 재시도 전에도 템플릿 확인
+  const template = await findTemplate(grades, report.has_children);
+
+  if (template) {
+    await db
+      .update(befeReports)
+      .set({
+        status: "completed",
+        content: template.content,
+        model_version: template.model_version,
+        prompt_version: template.prompt_version,
+      })
+      .where(eq(befeReports.id, reportId));
+
+    return {};
+  }
+
   // generating으로 상태 변경
   await db
     .update(befeReports)
     .set({ status: "generating" })
     .where(eq(befeReports.id, reportId));
 
-  // 백그라운드에서 리포트 재생성
+  // 백그라운드에서 리포트 재생성 + 템플릿 저장
   after(async () => {
     try {
       const { content, modelVersion } = await generateCareReport({
         sequence: 1,
         coupleId: report.couple_id,
         hasChildren: report.has_children,
-        grades: {
-          esb: couple.esb_grade!,
-          csp: couple.csp_grade!,
-          pci: couple.pci_grade!,
-          stb: couple.stb_grade!,
-        },
+        grades,
       });
 
       await db
@@ -174,6 +257,8 @@ export async function retryReport(reportId: string): Promise<{ error?: string }>
           prompt_version: PROMPT_VERSION,
         })
         .where(eq(befeReports.id, reportId));
+
+      await saveTemplate(grades, report.has_children, content, modelVersion);
     } catch (e) {
       console.error("Report generation retry failed:", e);
       await db

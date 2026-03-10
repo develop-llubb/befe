@@ -313,7 +313,36 @@ export const befeInvitations = pgTable(
   ],
 );
 
-// ─── befe_reports (AI 리포트 캐시) ───
+// ─── befe_report_templates (등급 조합별 리포트 캐시) ───
+
+export const befeReportTemplates = pgTable(
+  "befe_report_templates",
+  {
+    id: uuid("id").defaultRandom().primaryKey().notNull(),
+    esb_grade: gradeEnum("esb_grade").notNull(),
+    csp_grade: gradeEnum("csp_grade").notNull(),
+    pci_grade: gradeEnum("pci_grade").notNull(),
+    stb_grade: gradeEnum("stb_grade").notNull(),
+    has_children: boolean("has_children").notNull(),
+    content: jsonb("content").$type<CareReport>().notNull(),
+    model_version: text("model_version"),
+    prompt_version: text("prompt_version"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    unique("befe_report_templates_grades_key").on(
+      table.esb_grade,
+      table.csp_grade,
+      table.pci_grade,
+      table.stb_grade,
+      table.has_children,
+    ),
+  ],
+);
+
+// ─── befe_reports (커플별 리포트 접근 기록) ───
 
 export const befeReports = pgTable(
   "befe_reports",
