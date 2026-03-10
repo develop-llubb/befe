@@ -1,0 +1,1 @@
+ALTER TABLE "befe_report_templates" ENABLE ROW LEVEL SECURITY;
