@@ -390,6 +390,29 @@ export const befePersonalityReports = pgTable(
   ],
 );
 
+// ─── befe_orders (결제 주문) ───
+
+export const orderStatusEnum = pgEnum("befe_order_status", [
+  "pending",
+  "paid",
+  "failed",
+]);
+
+export const befeOrders = pgTable("befe_orders", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  couple_id: uuid("couple_id")
+    .notNull()
+    .references(() => befeCouples.id, { onDelete: "cascade" }),
+  order_id: text("order_id").notNull().unique(),
+  amount: integer("amount").notNull(),
+  status: orderStatusEnum("status").default("pending").notNull(),
+  payment_key: text("payment_key"),
+  has_children: boolean("has_children").notNull(),
+  created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .defaultNow()
+    .notNull(),
+});
+
 // ─── befe_coupons ───
 
 export const befeCoupons = pgTable("befe_coupons", {
@@ -427,6 +450,9 @@ export type NewBefeInvitation = typeof befeInvitations.$inferInsert;
 
 export type BefeReport = typeof befeReports.$inferSelect;
 export type NewBefeReport = typeof befeReports.$inferInsert;
+
+export type BefeOrder = typeof befeOrders.$inferSelect;
+export type NewBefeOrder = typeof befeOrders.$inferInsert;
 
 export type BefeCoupon = typeof befeCoupons.$inferSelect;
 export type NewBefeCoupon = typeof befeCoupons.$inferInsert;

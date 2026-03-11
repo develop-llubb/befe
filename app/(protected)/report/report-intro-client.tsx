@@ -5,7 +5,9 @@ import { useRouter } from "nextjs-toploader/app";
 import Image from "next/image";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { saveHasChildren, requestReport } from "./actions";
+import { createOrder } from "@/app/payment/actions";
 import { JOURNEY_STEPS } from "@/lib/steps";
 import { CouponTicket } from "@/components/coupon-ticket";
 
@@ -169,7 +171,10 @@ export function ReportIntroClient({
                     hasChildren === true
                       ? "linear-gradient(160deg, #FFF6F2, #FFF0EB)"
                       : "#fff",
-                  opacity: lockedHasChildren !== null && lockedHasChildren !== true ? 0.4 : 1,
+                  opacity:
+                    lockedHasChildren !== null && lockedHasChildren !== true
+                      ? 0.4
+                      : 1,
                   cursor: lockedHasChildren !== null ? "default" : "pointer",
                 }}
               >
@@ -194,7 +199,10 @@ export function ReportIntroClient({
                     hasChildren === false
                       ? "linear-gradient(160deg, #FFF6F2, #FFF0EB)"
                       : "#fff",
-                  opacity: lockedHasChildren !== null && lockedHasChildren !== false ? 0.4 : 1,
+                  opacity:
+                    lockedHasChildren !== null && lockedHasChildren !== false
+                      ? 0.4
+                      : 1,
                   cursor: lockedHasChildren !== null ? "default" : "pointer",
                 }}
               >
@@ -310,15 +318,15 @@ export function ReportIntroClient({
               <div className="pointer-events-none absolute -top-6 -right-6 h-20 w-20 rounded-full bg-white/[0.08]" />
               <div className="pointer-events-none absolute -bottom-4 -left-4 h-14 w-14 rounded-full bg-white/[0.06]" />
               <div className="relative z-10">
-                <div className="inline-block rounded-lg bg-white px-2.5 py-1.5">
-                  <Image
-                    src="/befe-logo.png"
-                    alt="BeFe"
-                    width={56}
-                    height={24}
-                    className="h-5 w-auto"
-                  />
-                </div>
+                {/* <div className="inline-block rounded-lg bg-white px-2.5 py-1.5"> */}
+                <Image
+                  src="/befe-logo.png"
+                  alt="BeFe"
+                  width={56}
+                  height={24}
+                  className="h-5 w-auto"
+                />
+                {/* </div> */}
                 <div className="mt-3 mb-2.5 text-base font-extrabold leading-[1.5] tracking-[-0.3px]">
                   BeFe 베이비페어에서
                   <br />
@@ -341,14 +349,40 @@ export function ReportIntroClient({
           <button
             disabled={hasChildren === null || requesting}
             onClick={() => {
-              startRequesting(async () => {
-                const result = await requestReport(coupleId, hasChildren!);
-                if ("error" in result) {
-                  toast(result.error);
-                  return;
-                }
-                router.replace(`/report/${result.reportId}`);
-              });
+              if (hasCoupon) {
+                // 쿠폰 사용자: 바로 리포트 생성
+                startRequesting(async () => {
+                  const result = await requestReport(coupleId, hasChildren!);
+                  if ("error" in result) {
+                    toast(result.error);
+                    return;
+                  }
+                  router.replace(`/report/${result.reportId}`);
+                });
+              } else {
+                // 결제 사용자: 토스 결제창 띄우기
+                startRequesting(async () => {
+                  try {
+                    const order = await createOrder(coupleId, hasChildren!);
+                    const tossPayments = await loadTossPayments(
+                      process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!,
+                    );
+                    const payment = tossPayments.payment({ customerKey: coupleId });
+                    await payment.requestPayment({
+                      method: "CARD",
+                      amount: { currency: "KRW", value: order.amount },
+                      orderId: order.order_id,
+                      orderName: "육아 케어 리포트",
+                      successUrl: `${window.location.origin}/payment/success`,
+                      failUrl: `${window.location.origin}/payment/fail`,
+                    });
+                  } catch (e: unknown) {
+                    const error = e as { code?: string; message?: string };
+                    if (error.code === "USER_CANCEL") return;
+                    toast(error.message || "결제 중 오류가 발생했습니다.");
+                  }
+                });
+              }
             }}
             className="flex h-[54px] w-full items-center justify-center rounded-2xl border-none text-base font-bold text-white transition-all duration-200"
             style={{
