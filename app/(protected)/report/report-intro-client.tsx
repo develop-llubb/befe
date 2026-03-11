@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useTransition } from "react";
-import { useRouter } from "nextjs-toploader/app";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -31,6 +31,7 @@ export function ReportIntroClient({
   lockedHasChildren = null,
 }: ReportIntroClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [ready, setReady] = useState(false);
   const [hasChildren, setHasChildren] = useState<boolean | null>(
     initialHasChildren,
@@ -42,6 +43,22 @@ export function ReportIntroClient({
     const t = setTimeout(() => setReady(true), 80);
     return () => clearTimeout(t);
   }, []);
+
+  // 결제 실패/취소 시 toast 표시
+  useEffect(() => {
+    const code = searchParams.get("code");
+    const message = searchParams.get("message");
+    if (code) {
+      const cancelCodes = ["PAY_PROCESS_CANCELED", "USER_CANCEL", "PAY_PROCESS_ABORTED"];
+      if (cancelCodes.includes(code)) {
+        toast("결제가 취소되었습니다.");
+      } else {
+        toast(message || "결제에 실패했습니다.");
+      }
+      // URL에서 쿼리 파라미터 제거
+      router.replace("/report", { scroll: false });
+    }
+  }, [searchParams, router]);
 
   const ease = (delay = 0): React.CSSProperties => ({
     opacity: ready ? 1 : 0,
@@ -374,7 +391,7 @@ export function ReportIntroClient({
                       orderId: order.order_id,
                       orderName: "육아 케어 리포트",
                       successUrl: `${window.location.origin}/payment/success`,
-                      failUrl: `${window.location.origin}/payment/fail`,
+                      failUrl: `${window.location.origin}/report`,
                     });
                   } catch (e: unknown) {
                     const error = e as { code?: string; message?: string };
