@@ -404,19 +404,27 @@ export function HomeClient({
             </button>
           </div>
 
-          {/* Info note */}
-          <div
-            className="mt-6 mb-8 w-full rounded-[14px] bg-[#F8F6F3] p-[14px_18px]"
-            style={ease(0.4)}
-          >
-            <div className="flex items-start gap-2.5">
-              <span className="shrink-0 text-base">💡</span>
-              <p className="text-xs leading-[1.6] text-muted">
-                육아 케어 리포트는 배우자와 함께 검사를 완료해야 생성돼요. 아직
-                배우자가 검사를 하지 않았다면 초대 링크를 보내보세요.
-              </p>
+          {/* Info note — couple이 없을 때만 표시 */}
+          {!hasCouple && (
+            <div
+              className="mt-6 mb-8 w-full rounded-[14px] bg-[#F8F6F3] p-[14px_18px]"
+              style={ease(0.4)}
+            >
+              <div className="flex items-start gap-2.5">
+                <span className="shrink-0 text-base">💡</span>
+                <p className="text-xs leading-[1.6] text-muted">
+                  육아 케어 리포트는 배우자와 함께 검사를 완료해야 생성돼요. 아직
+                  배우자가 검사를 하지 않았다면 초대 링크를 보내보세요.
+                </p>
+              </div>
+              <button
+                onClick={() => router.push("/home/invite")}
+                className="mt-3 flex h-9 w-full cursor-pointer items-center justify-center rounded-lg border-none bg-[#ECE8E3] text-[12px] font-medium text-[#6B6360] transition-all active:scale-[0.98]"
+              >
+                배우자 초대하기
+              </button>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>
